@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bio-Rehab</title>
+    
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+
+  <body>
+    <div class="mainContainer">
+      <div class="sideBar">
+        <div class="header">
+          <h1>Dashboard</h1>
+          <hr />
+          <br />
+        </div>
+        <div class="searchBoxContainer">
+          <div class="searchBox">
+          </div>
+          <div class="suggestionBox">
+            <div id="suggestions"></div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div id="dptHeader">
+          <h1>Bioengineering</h1>
+        </div>
+        <div id="json_table_container">
+          <table id="json_table" style="display: none"></table>
+        </div>
+        <div class="date-filter" style="display: none">
+          <div id="date-filter">
+            <div class="filter">
+              <label for="start_date">Start Date:</label>
+              <input type="date" id="start_date" />
+              <label for="end_date">End Date:</label>
+              <input type="date" id="end_date" />
+            </div>
+            <div class="overallChart">
+              <div class="overallChartCn">
+                <button id="left-arrow">
+                  <img
+                    src="{{ url_for('static', filename='l2.jpg') }}"
+                    alt="left-arrow"
+                    width="80px"
+                    height="80px"
+                  />
+                </button>
+
+                <div class="combainedChartSystem">
+                  <div class="totalDurationUsageChart">
+                    <div id="totalDurationUsageChartId">
+                      <canvas id="totalDurationUsageChartCanvas"></canvas>
+                    </div>
+                  </div>
+                  <div class="deviceUsedOrNot">
+                    <div class="deviceUsedOrNotL1">
+                      <div class="deviceUsedOrNotL2">
+                        <div id="deviceUsedOrNotId">
+                          <canvas id="deviceUsedOrNotChartCanvas"></canvas>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div id="totalDaysUsedChart">
+                      <canvas id="totalDaysUsedChartCanvas"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <button id="right-arrow">
+                  <img
+                    src="{{ url_for('static', filename='r1.jpg') }}"
+                    alt="right-arrow"
+                    width="80px"
+                    height="80px"
+                  />
+                </button>
+              </div>
+
+              <div class="indSessionChart">
+                <div class="ind_date">
+                  <div class="buttons">
+                    <button id="left">
+                      <img
+                        src="{{ url_for('static', filename='l2.jpg') }}"
+                        alt="left-arrow"
+                        width="33px"
+                        height="33px"
+                      />
+                    </button>
+                    <div id="session-charts-container"></div>
+                    <button id="right">
+                      <img
+                        src="{{ url_for('static', filename='r1.jpg') }}"
+                        alt="right-arrow"
+                        width="33px"
+                        height="33px"
+                      />
+                    </button>
+                  </div>
+                </div>
+                <div id="dummy" height="220px">
+                  <p>
+                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                    &nbsp;
+                  </p>
+                </div>
+                <div id="dates"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
