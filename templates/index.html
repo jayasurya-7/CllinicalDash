@@ -13,112 +13,82 @@
   </head>
 
   <body>
-    <div class="mainContainer">
-      <div class="sideBar">
-        <div class="header">
-          <h1>Dashboard</h1>
-          <hr />
-          <br />
-        </div>
-        <div class="searchBoxContainer">
-          <div class="searchBox">
-          </div>
-          <div class="suggestionBox">
-            <div id="suggestions"></div>
+      <div class="bodyContainer">
+        <div class="appHeader">
+          <div class="header">
+            <h1>Dashboard</h1>
+            <br />
           </div>
         </div>
-      </div>
-      <div class="chart-container">
-        <div id="dptHeader">
-          <h1>Bioengineering</h1>
-        </div>
-        <div id="json_table_container">
-          <table id="json_table" style="display: none"></table>
-        </div>
-        <div class="date-filter" style="display: none">
-          <div id="date-filter">
-            <div class="filter">
-              <label for="start_date">Start Date:</label>
-              <input type="date" id="start_date" />
-              <label for="end_date">End Date:</label>
-              <input type="date" id="end_date" />
-            </div>
-            <div class="overallChart">
-              <div class="overallChartCn">
-                <button id="left-arrow">
-                  <img
-                    src="{{ url_for('static', filename='l2.jpg') }}"
-                    alt="left-arrow"
-                    width="80px"
-                    height="80px"
-                  />
-                </button>
-
-                <div class="combainedChartSystem">
-                  <div class="totalDurationUsageChart">
-                    <div id="totalDurationUsageChartId">
-                      <canvas id="totalDurationUsageChartCanvas"></canvas>
-                    </div>
-                  </div>
-                  <div class="deviceUsedOrNot">
-                    <div class="deviceUsedOrNotL1">
-                      <div class="deviceUsedOrNotL2">
-                        <div id="deviceUsedOrNotId">
-                          <canvas id="deviceUsedOrNotChartCanvas"></canvas>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div id="totalDaysUsedChart">
-                      <canvas id="totalDaysUsedChartCanvas"></canvas>
-                    </div>
-                  </div>
-                </div>
-                <button id="right-arrow">
-                  <img
-                    src="{{ url_for('static', filename='r1.jpg') }}"
-                    alt="right-arrow"
-                    width="80px"
-                    height="80px"
-                  />
-                </button>
+        <div class="mainContainer">
+          <div class="sideBar">
+           
+            <div class="searchBoxContainer">
+              <div class="searchBox">
               </div>
-
-              <div class="indSessionChart">
-                <div class="ind_date">
-                  <div class="buttons">
-                    <button id="left">
-                      <img
-                        src="{{ url_for('static', filename='l2.jpg') }}"
-                        alt="left-arrow"
-                        width="33px"
-                        height="33px"
-                      />
-                    </button>
-                    <div id="session-charts-container"></div>
-                    <button id="right">
-                      <img
-                        src="{{ url_for('static', filename='r1.jpg') }}"
-                        alt="right-arrow"
-                        width="33px"
-                        height="33px"
-                      />
-                    </button>
-                  </div>
-                </div>
-                <div id="dummy" height="220px">
-                  <p>
-                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                    &nbsp;
-                  </p>
-                </div>
-                <div id="dates"></div>
+              <div class="suggestionBox">
+                <div id="suggestions"></div>
               </div>
             </div>
           </div>
+          <div class="DashContainer">
+              <!-- Card-style container -->
+<div class="container">
+  <div id="detailsForm" style="display: none;" class="card">
+    <h3 class="card-title">Hospital Details</h3>
+    <form class="card-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hospitalID">Hospital ID:</label>
+          <input type="text" id="hospitalID" readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="startDate">Start Date:</label>
+          <input type="text" id="startDate" readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">End Date:</label>
+          <input type="text" id="endDate" readonly>
         </div>
       </div>
-    </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="totalDays">Total Days:</label>
+          <input type="text" id="totalDays" readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="usageDays">Usage Days:</label>
+          <input type="text" id="usageDays" readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="totalusageDays">Total Usage Days:</label>
+          <input type="text" id="totalusageDays" readonly>
+        </div>
+ <!-- Pie Chart container -->
+       
+
+      </div>
+      <div class="form-row">
+        <label for="PLUTO">PLUTO</label>
+        <canvas id="usageChart"></canvas>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+          </div>
+        </div>
+      </div>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js" integrity="sha512-JPcRR8yFa8mmCsfrw4TNte1ZvF1e3+1SdGMslZvmrzDYxS69J7J49vkFL8u6u8PlPJK+H3voElBtUCzaXj+6ig==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      
+    <script src="{{ url_for('static', filename='test.js') }}"></script>
   </body>
 </html>
