@@ -129,12 +129,12 @@ body {
 .container {
   display: flex;
   flex-direction: row;
-  border: 1px solid red;
   /* justify-content: flex-start; Align items to the left */
   /* align-items: flex-start; */
   padding: 0px;
+
   max-width:100%;
-  height: 100vh;
+  max-height: 700px;
   background-color: #d9dcd6;
   box-sizing: border-box;
 }
@@ -145,7 +145,9 @@ body {
   background: #2f6690;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 700px;
+  /* max-width: 700px; */
+  max-width: 50%;
+  flex:1;
   z-index: 1000;
   margin: 3px;
   padding: 10px;
@@ -178,8 +180,8 @@ body {
   color: #ffffff;
 }
 .form-row canvas{
-  max-width: 250px;
-  max-height: 250px;
+  max-width: 300px;
+  max-height: 300px;
 }
 /* Input styling */
 input[type="text"] {
@@ -210,28 +212,35 @@ input[type="text"]:focus {
 #homerUserDetails {
     margin: 3px;
     display: flex;
+    flex:1;
+
     justify-content: center;
     align-items: left;
     align-self: center;
     background-color: #f7f7f7;
-    /* Light gray background */
-    padding: 20px;
+    padding: 10px;
     border-radius: 10px;
     /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     /* Subtle shadow */
-    width:100%;
+    /* width:100%; */
     /* Adjustable box width */
-    max-width: 600px;
-    /* Maximum width */
+    /* max-width: 600px; */
+    border: 3px;
+    max-width: 98%;
+    min-height: 95%;
     z-index: 1000;
     /* Ensure it appears above other content */
     
 }
-
+.config-container{
+  flex: 1;
+  max-width:50%;
+}
 .form-layout {
-    width: 100%;
-    max-width: 600px;
+    width: 95%;
+    /* max-width: 600px; */
+    max-width: 95%;
     margin: 0 auto;
     font-family: Arial, sans-serif;
 }
@@ -335,4 +344,12 @@ input[type="text"]:focus {
     color: #f44336;
     /* Red color to indicate non-editable */
     font-style: italic;
+}
+
+/* Chart */
+.deviceChart{
+  max-width:80%;
+min-width: 900px;
+max-height: 700px;
+min-height: 500px;
 }

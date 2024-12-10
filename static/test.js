@@ -2,39 +2,39 @@ let usageChart; // Declare the chart globally
 DEVICE_NAME = "PLUTO"
 $(document).ready(function () {
     // Function to fetch all hospital IDs and their statuses
-    function getSuggestions() {
-        const suggestionsDiv = document.getElementById('suggestions');
-        // Fetch hospital IDs and statuses from the backend
-        fetch('/get_hosID')
-            .then(response => response.json())
-            .then(data => {
-                const hospitalInfo = data.hospital_info;
-                console.log("Hospital Info:", hospitalInfo);
-                // Clear previous suggestions
-                suggestionsDiv.innerHTML = '';
-                // Show all hospital IDs and their statuses
-                hospitalInfo.forEach(hospital => {
-                    const suggestionItem = document.createElement('div');
-                    suggestionItem.classList.add('suggestion-item');
+    // function getSuggestions() {
+    //     const suggestionsDiv = document.getElementById('suggestions');
+    //     // Fetch hospital IDs and statuses from the backend
+    //     fetch('/get_hosID')
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const hospitalInfo = data.hospital_info;
+    //             console.log("Hospital Info:", hospitalInfo);
+    //             // Clear previous suggestions
+    //             suggestionsDiv.innerHTML = '';
+    //             // Show all hospital IDs and their statuses
+    //             hospitalInfo.forEach(hospital => {
+    //                 const suggestionItem = document.createElement('div');
+    //                 suggestionItem.classList.add('suggestion-item');
 
-                    // Add hospital ID and status
-                    suggestionItem.innerHTML = `
-                        ${hospital.HospitalID} - 
-                        <span class="${hospital.Status.toLowerCase()}">${hospital.Status}</span>
-                    `;
+    //                 // Add hospital ID and status
+    //                 suggestionItem.innerHTML = `
+    //                     ${hospital.HospitalID} - 
+    //                     <span class="${hospital.Status.toLowerCase()}">${hospital.Status}</span>
+    //                 `;
 
-                    // Add click event to fetch and display hospital details
-                    suggestionItem.addEventListener('click', function() {
-                        fetchHospitalDetails(hospital.HospitalID);
-                    });
+    //                 // Add click event to fetch and display hospital details
+    //                 suggestionItem.addEventListener('click', function() {
+    //                     fetchHospitalDetails(hospital.HospitalID);
+    //                 });
 
-                    suggestionsDiv.appendChild(suggestionItem);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching hospital IDs:', error);
-            });
-    }
+    //                 suggestionsDiv.appendChild(suggestionItem);
+    //             });
+    //         })
+    //         .catch(error => {
+    //             console.error('Error fetching hospital IDs:', error);
+    //         });
+    // }
     var UserName;
     var DeviceName = "PLUTO";
     const container = document.getElementById("homerUserDetails");// userdetials
@@ -347,7 +347,11 @@ $(document).ready(function () {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false,
+                    display: true,
+                    position:"bottom",
+                    labels:{
+                        color:"white"
+                    }
                 },
                 tooltip: {
                     callbacks: {
@@ -368,5 +372,5 @@ $(document).ready(function () {
     }
 
     // Call the function to fetch hospital suggestions when the page loads
-    window.onload = getSuggestions;
+    // window.onload = getSuggestions;
 });
