@@ -1,20 +1,17 @@
 let usageChart; // Declare the chart globally
-
+DEVICE_NAME = "PLUTO"
 $(document).ready(function () {
     // Function to fetch all hospital IDs and their statuses
     function getSuggestions() {
         const suggestionsDiv = document.getElementById('suggestions');
-
         // Fetch hospital IDs and statuses from the backend
         fetch('/get_hosID')
             .then(response => response.json())
             .then(data => {
                 const hospitalInfo = data.hospital_info;
                 console.log("Hospital Info:", hospitalInfo);
-
                 // Clear previous suggestions
                 suggestionsDiv.innerHTML = '';
-
                 // Show all hospital IDs and their statuses
                 hospitalInfo.forEach(hospital => {
                     const suggestionItem = document.createElement('div');
@@ -38,7 +35,111 @@ $(document).ready(function () {
                 console.error('Error fetching hospital IDs:', error);
             });
     }
+    var UserName;
+    var DeviceName;
+    const container = document.getElementById("homerUserDetails");// userdetials
+    const containereditable = document.getElementById("editableFieldsContainer");
+    const loadingMessage = document.getElementById("loadingMessage");
+    const pluto = document.querySelector(".pluto")
+    pluto.addEventListener("click",()=>{
+        console.log("pluto clicked");
+        getUserID(pluto.getAttribute("device-name"));
+    })
+    const mars = document.querySelector(".mars");
+    mars.addEventListener("click",()=>{
+        console.log("mars clicked");
+        getUserID(mars.getAttribute("device-name"));
+    })
 
+    function getUserID(search_term){
+       
+       console.log(search_term);
+       const suggestionsDiv = document.getElementById('suggestions');
+        $.ajax({
+            url: '/get_userId',
+            type: 'POST',
+            data: { search_term: search_term },
+            
+            success: function (response) {
+                const hospitalInfo = response.hospital_info;
+                console.log("Hospital Info:", hospitalInfo);
+                // Clear previous suggestions
+                suggestionsDiv.innerHTML = '';
+                // Show all hospital IDs and their statuses
+                hospitalInfo.forEach(hospital => {
+                    const suggestionItem = document.createElement('div');
+                    suggestionItem.classList.add('suggestion-item');
+
+                    // Add hospital ID and status
+                    suggestionItem.innerHTML = `
+                        ${hospital.HospitalID} - 
+                        <span class="${hospital.Status.toLowerCase()}">${hospital.Status}</span>
+                    `;
+
+                    // Add click event to fetch and display hospital details
+                    suggestionItem.addEventListener('click', function() {
+                        fetchHospitalDetails(hospital.HospitalID);
+                        fetchUserDataFromAWS(hospital.HospitalID,search_term)
+                    });
+
+                    suggestionsDiv.appendChild(suggestionItem);
+                })
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+    function fetchUserDataFromAWS(name, d_name) {
+        UserName = name;
+        DeviceName = d_name;
+        $.ajax({
+            url: '/get_user_data',
+            type: 'POST',
+            data: {
+                Name: name,
+                devicename: d_name
+            },
+            success: function (response) {
+                if (response.status === "success") {
+                    const header = response.data.header;
+                    const lastRow = response.data.last_row;
+                    container.style.display = "block";
+                    loadingMessage.innerHTML = "";
+                    container.innerHTML = "";
+
+                    const headerHTML = header.map((value, index) => `
+                            <div class="form-row-detials">
+                                <label class="form-label">${value.toUpperCase()}</label>
+                                <label class="form-input">${lastRow[index]}</label>
+                            </div>
+                        `).join("");
+
+                    container.innerHTML = `
+                            <div class="form-layout">
+                                <h2 class="form-heading">Patient Details</h2>
+                                ${headerHTML}
+                                <div class="form-actions">
+                                     <button id="editconfig" class="btn btn-success">Edit Configuation</button>
+                                </div>
+                            </div>
+                        `;
+                    document.getElementById("editconfig").addEventListener("click", () => {
+                        createEditableFields(lastRow, header)
+                        container.style.display = "none";
+                    });
+
+                } else {
+                    alert("Error: " + response.message);
+                }
+
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching user data:", error);
+                alert("Failed to fetch user data. Please try again later.");
+            }
+        });
+    }
     // Function to destroy the chart if it exists
     function destroyChart() {
         if (usageChart) {
@@ -79,7 +180,141 @@ $(document).ready(function () {
                 console.error('Error fetching hospital details:', error);
             });
     }
+    function createEditableFields(rowData, headers) {
+        containereditable.style.display = "block";
+        containereditable.innerHTML = "";
 
+        const currentDate = new Date().toISOString().split("T")[0];
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + 28); 
+        const formattedEndDate = endDate.toISOString().split("T")[0];
+        rowData[headers.indexOf("Date")] = currentDate;
+        rowData[headers.indexOf("startdate")] = currentDate;
+        rowData[headers.indexOf("end ")] = formattedEndDate;
+        const editableFields = headers.filter(
+            (header) =>
+                ![
+                    "name",
+                    "date",
+                    "startdate",
+                    "end ",
+                    "age",
+                    "hospno",
+                    "usehand",
+                    "upperarmlength",
+                    "forearmlength",
+                ].includes(header.toLowerCase())
+        );
+        containereditable.innerHTML = `
+          <div class="form-layout">
+            <h3 class="form-heading">Therapy Duration(min)</h3>
+            ${editableFields
+                .map((header, index) => {
+                    const value = rowData[headers.indexOf(header)] || ""; // Get value based on original index
+                    return `
+                  <div class="form-row-detials">
+                    <label class="editable-label">${header}</label>
+                    <input type="text" class="editable-input" value="${value}" />
+                  </div>
+                `;
+                })
+                .join("")}
+            <div class="form-actions">
+              <button id="saveChangesButton" class="btn btn-success">Save Changes</button>
+              <button id="cancelButton" class="btn btn-danger">Cancel</button>
+            </div>
+          </div>
+        `;
+        document.getElementById("cancelButton").addEventListener("click", () => {
+            containereditable.style.display = "none";
+            container.style.display = "block";
+        });
+        document.getElementById("saveChangesButton").addEventListener("click", () => {
+            const formInputs = document.querySelectorAll(".editable-input");
+            const editableheaders = document.querySelectorAll(".editable-label")
+            const headerTexts = Array.from(editableheaders).map(label => label.textContent);
+            let isValid = true;
+            const updatedData = { ...rowData };
+            formInputs.forEach((input, index) => {
+                if (input.value.trim() === "") {
+                    isValid = false;
+                    input.style.border = "2px solid red";
+                    let errorMessage = input.nextElementSibling;
+                    if (!errorMessage || !errorMessage.classList.contains("error-message")) {
+                        errorMessage = document.createElement("span");
+                        errorMessage.classList.add("error-message");
+                        errorMessage.textContent = "This field is required";
+                        input.parentElement.appendChild(errorMessage);
+                    }
+                } else {
+                    input.style.border = "";
+                    const header = headerTexts[index];
+                    console.log(index);
+                    console.log(headerTexts);
+
+                    updatedData[headers.indexOf(header)] = input.value; // Update only editable fields
+                    let errorMessage = input.nextElementSibling;
+                    if (errorMessage && errorMessage.classList.contains("error-message")) {
+                        errorMessage.remove();
+                    }
+                }
+            });
+
+            if (isValid) {
+                console.log("Updated Data:", updatedData); // Updated data including non-editable fields
+                updateDataInAWS(updatedData); // Pass updated data to AWS function
+                containereditable.style.display = "none";
+                container.style.display = "block";
+            } else {
+                alert("Please fill in all required fields.");
+            }
+        });
+    }
+
+    function updateDataInAWS(updatedRowData) {
+        showUploadStatus("uploading...", "warning");
+        $.ajax({
+            url: '/update_data_in_aws',
+            type: 'POST',
+            data: {
+                updatedData: Object.values(updatedRowData), // Send the updated row data
+                userName: UserName,
+                deviceName: DeviceName
+            },
+            success: function (response) {
+                if (response.status === "success") {
+                    showUploadStatus("Changes saved successfully!", "success");
+
+                    fetchUserDataFromAWS(UserName, DeviceName);
+                } else {
+
+                    showUploadStatus("Failed to upload data to AWS.", "error");
+
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error updating data in AWS:", error);
+                showUploadStatus("Error during the upload. Please try again later.", "error");
+            }
+        });
+    }
+
+    function showUploadStatus(message, type) {
+        loadingMessage.innerHTML = "<div id='statusmessage'></div>";
+        const statusContainer = document.getElementById("statusmessage");
+
+        if (statusContainer) {
+            statusContainer.textContent = message;
+            statusContainer.style.color = "white"
+            statusContainer.style.backgroundColor = type === "success" ? "green" : "red";
+            if (type === "success" || type === "error") {
+                setTimeout(() => {
+                    loadingMessage.innerHTML = '';
+                }, 3000);
+            }
+
+        }
+    }
     // Function to render the pie chart
     function renderPieChart(usedDays, remainingDays) {
         const ctx = document.getElementById('usageChart').getContext('2d');
