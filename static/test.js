@@ -36,7 +36,7 @@ $(document).ready(function () {
             });
     }
     var UserName;
-    var DeviceName;
+    var DeviceName = "PLUTO";
     const container = document.getElementById("homerUserDetails");// userdetials
     const containereditable = document.getElementById("editableFieldsContainer");
     const loadingMessage = document.getElementById("loadingMessage");
@@ -52,7 +52,6 @@ $(document).ready(function () {
     })
 
     function getUserID(search_term){
-       
        console.log(search_term);
        const suggestionsDiv = document.getElementById('suggestions');
         $.ajax({
@@ -175,6 +174,7 @@ $(document).ready(function () {
                 // Render pie chart
                 destroyChart(); // Destroy any existing chart before rendering
                 renderPieChart(data.usage_days, remainingDays);
+                fetchUserDataFromAWS(hospitalID,DeviceName)
             })
             .catch(error => {
                 console.error('Error fetching hospital details:', error);
@@ -184,10 +184,24 @@ $(document).ready(function () {
         containereditable.style.display = "block";
         containereditable.innerHTML = "";
 
-        const currentDate = new Date().toISOString().split("T")[0];
+        const formatDate = (date) => {
+            const day = String(date.getDate()).padStart(2, '0'); // Ensure two digits
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`; // Return in DD-MM-YYYY format
+        };
+        
+        // Current Date
+        const currentDate = formatDate(new Date());
+        
+        // End Date (28 days from today)
         const endDate = new Date();
-        endDate.setDate(endDate.getDate() + 28); 
-        const formattedEndDate = endDate.toISOString().split("T")[0];
+        endDate.setDate(endDate.getDate() + 28);
+        const formattedEndDate = formatDate(endDate);
+        
+        console.log(currentDate);       // Example Output: 10-12-2024
+        console.log(formattedEndDate);  // Example Output: 07-01-2025
+        
         rowData[headers.indexOf("Date")] = currentDate;
         rowData[headers.indexOf("startdate")] = currentDate;
         rowData[headers.indexOf("end ")] = formattedEndDate;
