@@ -18,61 +18,48 @@ body {
   text-align: left;
   font-weight: bold;
   font-family: "Times New Roman", serif;
-  width: 15%;
-  
+  margin-left: 30px;
 }
+
+
 .appHeader{
   border: 1px solid white;
   border-radius: 5px;
   /* background-color: #003366; */
   background-color: #3a7ca5;
-  display: flex;
-  align-items: center;
-  padding: 10px 20px;
-  justify-content: space-around;
-  
-}
-hr{
-  padding-bottom: 0px;
-}
-.pluto{
-  flex:1;
-  background-color:  #fefefe; /* New button color */
-  color: rgb(16, 17, 23);
-  font-weight: bolder;
-  padding: 8px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 16px;
-  text-align: center;
-}
-.mars{
-  margin: 5px;
-  background-color:  #fefefe; /* New button color */
-  color: rgb(16, 17, 23);
-  font-weight: bolder;
-  text-align: center;
-  flex:1;
-  border-radius: 10px;
-  padding: 8px ;
-  cursor: pointer;
-  font-size: 16px;
-}
-.pluto:hover{
-  background-color:  rgb(247, 238, 153); /* New button color */
-  color: rgb(13, 13, 13);
-  border-radius: 10px;
-  padding: 11px ;
 
 }
-.mars:hover{
-  background-color:  rgb(247, 238, 153); /* New button color */
-  color: rgb(10, 10, 10);
-  border-radius: 10px;
-  padding: 11px ;
-
+.appHeader {
+  display: flex; /* Enables flexbox layout */
+  width: 100%; /* Ensures the container spans the full width */
+  align-items: center; /* Vertically centers the content (if needed) */
+}
+.header {
+  width: 13.3%; /* Takes 20% of the total width */
+  text-align: left; /* Centers text inside this div */
 }
 
+.pluto,
+.mars {
+  flex: 1; /* Shares remaining space equally between them */
+  text-align: center; /* Centers text inside these divs */
+  color: #fff;
+  font-size: 1em;
+
+  padding: 40px; /* Optional: Adds some padding for better readability */
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+/* Hover Effect */
+.pluto:hover,
+.mars:hover {
+  background-color: #165a75; /* Change to your preferred color */
+  color: white; /* Optional: Change text color */
+  border-radius: 5px;
+  border: 1px solid white;
+  border-right: 1px solid white;
+
+}
 .mainContainer {
   display: grid;
   grid-template-columns: 15% 85%;
@@ -141,10 +128,12 @@ hr{
 }
 .container {
   display: flex;
-  justify-content: flex-start; /* Align items to the left */
-  align-items: flex-start;
+  flex-direction: row;
+  border: 1px solid red;
+  /* justify-content: flex-start; Align items to the left */
+  /* align-items: flex-start; */
   padding: 0px;
-  max-width:50%;
+  max-width:100%;
   height: 100vh;
   background-color: #d9dcd6;
   box-sizing: border-box;
@@ -182,12 +171,12 @@ hr{
 }
 
 /* Label styling */
-/* label {
+.card label {
   font-weight: bold;
   display: block;
   margin-bottom: 5px;
   color: #ffffff;
-} */
+}
 .form-row canvas{
   max-width: 250px;
   max-height: 250px;
@@ -231,7 +220,7 @@ input[type="text"]:focus {
     /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     /* Subtle shadow */
-    width: 120%;
+    width:100%;
     /* Adjustable box width */
     max-width: 600px;
     /* Maximum width */

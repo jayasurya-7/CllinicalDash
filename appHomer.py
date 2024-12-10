@@ -8,7 +8,7 @@ import boto3
 
 bucketName = 'homer-data'
 keysFilePath = "C:/homer_accessKeys.csv"
-path_r= "C:\\Homer-Data"
+path_r= "C:\\Users\\Admin\\Desktop\\ClinicalDash\\1012CD\\CllinicalDash\\CllinicalDash\\pythonScrips and datafoler\\Homer-Data"
 pathCsv= os.path.join(path_r, "PlutoUserDetails.csv")
 app = Flask(__name__)
 global DEVICE_NAME
