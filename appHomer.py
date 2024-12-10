@@ -6,7 +6,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 path_r= 'D:\\Data2\\HomerDataManipulation'
-pathCsv= os.path.join(path_r, "userDetails.csv")
+pathCsv= os.path.join(path_r, "user_details.csv")
 app = Flask(__name__)
 
 @app.route('/')

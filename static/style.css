@@ -14,7 +14,7 @@ body {
 
 .header {
   color: #fff;
-  font-size: 1em;
+  font-size: .8em;
   text-align: left;
   font-weight: bold;
   font-family: "Times New Roman", serif;
@@ -27,8 +27,37 @@ body {
   background-color: #3a7ca5;
 
 }
-hr{
-  padding-bottom: 0px;
+.appHeader {
+  display: flex; /* Enables flexbox layout */
+  width: 100%; /* Ensures the container spans the full width */
+  align-items: center; /* Vertically centers the content (if needed) */
+}
+
+.header {
+  width: 13.3%; /* Takes 20% of the total width */
+  text-align: left; /* Centers text inside this div */
+}
+
+.pluto,
+.mars {
+  flex: 1; /* Shares remaining space equally between them */
+  text-align: center; /* Centers text inside these divs */
+  color: #fff;
+  font-size: .7em;
+ 
+  padding: 10px; /* Optional: Adds some padding for better readability */
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+/* Hover Effect */
+.pluto:hover,
+.mars:hover {
+  background-color: #165a75; /* Change to your preferred color */
+  color: white; /* Optional: Change text color */
+  border-radius: 5px;
+  border: 1px solid white;
+  border-right: 1px solid white;
+
 }
 
 .mainContainer {
@@ -63,7 +92,7 @@ hr{
 
 #suggestions {
   border: 1px solid #ccc;
-  min-height: 1000px;
+  min-height: 100vh;
   overflow-y: auto;
   overflow-y: hidden;
 }
@@ -103,7 +132,7 @@ hr{
   align-items: flex-start;
   padding: 0px;
   max-width:50%;
-  height: 100vh;
+  max-height: 700px;
   background-color: #d9dcd6;
 
   box-sizing: border-box;
@@ -143,8 +172,8 @@ label {
   color: #ffffff;
 }
 .form-row canvas{
-  max-width: 250px;
-  max-height: 250px;
+  max-width: 300px;
+  max-height: 300px;
 }
 /* Input styling */
 input[type="text"] {
