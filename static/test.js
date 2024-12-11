@@ -1,95 +1,69 @@
 let usageChart; // Declare the chart globally
 DEVICE_NAME = "PLUTO"
 $(document).ready(function () {
-    // Function to fetch all hospital IDs and their statuses
-    function getSuggestions() {
-        const suggestionsDiv = document.getElementById('suggestions');
-        // Fetch hospital IDs and statuses from the backend
-        fetch('/get_hosID')
-            .then(response => response.json())
-            .then(data => {
-                const hospitalInfo = data.hospital_info;
-                console.log("Hospital Info:", hospitalInfo);
-                // Clear previous suggestions
-                suggestionsDiv.innerHTML = '';
-                // Show all hospital IDs and their statuses
-                hospitalInfo.forEach(hospital => {
-                    const suggestionItem = document.createElement('div');
-                    suggestionItem.classList.add('suggestion-item');
-
-                    // Add hospital ID and status
-                    suggestionItem.innerHTML = `
-                        ${hospital.HospitalID} - 
-                        <span class="${hospital.Status.toLowerCase()}">${hospital.Status}</span>
-                    `;
-
-                    // Add click event to fetch and display hospital details
-                    suggestionItem.addEventListener('click', function() {
-                        fetchHospitalDetails(hospital.HospitalID);
-                    });
-
-                    suggestionsDiv.appendChild(suggestionItem);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching hospital IDs:', error);
-            });
-    }
+    
     var UserName;
     var DeviceName = "PLUTO";
-    const container = document.getElementById("homerUserDetails");// userdetials
+    const PatientDetailscontainer = document.getElementById("homerUserDetails");// userdetials
     const containereditable = document.getElementById("editableFieldsContainer");
     const loadingMessage = document.getElementById("loadingMessage");
+    const HospitalDetailsContainer = document.getElementById("detailsForm");
     const pluto = document.querySelector(".pluto")
     pluto.addEventListener("click",()=>{
+        PatientDetailscontainer.style.display = "none";
+        HospitalDetailsContainer.style.display = "none"
         console.log("pluto clicked");
         getUserID(pluto.getAttribute("device-name"));
+        
     })
     const mars = document.querySelector(".mars");
     mars.addEventListener("click",()=>{
         console.log("mars clicked");
+        PatientDetailscontainer.style.display = "none";
+        HospitalDetailsContainer.style.display = "none"
         getUserID(mars.getAttribute("device-name"));
+        
     })
-
     function getUserID(search_term){
-       console.log(search_term);
-       const suggestionsDiv = document.getElementById('suggestions');
-        $.ajax({
-            url: '/get_userId',
-            type: 'POST',
-            data: { search_term: search_term },
-            
-            success: function (response) {
-                const hospitalInfo = response.hospital_info;
-                console.log("Hospital Info:", hospitalInfo);
-                // Clear previous suggestions
-                suggestionsDiv.innerHTML = '';
-                // Show all hospital IDs and their statuses
-                hospitalInfo.forEach(hospital => {
-                    const suggestionItem = document.createElement('div');
-                    suggestionItem.classList.add('suggestion-item');
-
-                    // Add hospital ID and status
-                    suggestionItem.innerHTML = `
-                        ${hospital.HospitalID} - 
-                        <span class="${hospital.Status.toLowerCase()}">${hospital.Status}</span>
-                    `;
-
-                    // Add click event to fetch and display hospital details
-                    suggestionItem.addEventListener('click', function() {
-                        fetchHospitalDetails(hospital.HospitalID);
-                        fetchUserDataFromAWS(hospital.HospitalID,search_term)
-                    });
-
-                    suggestionsDiv.appendChild(suggestionItem);
-                })
-            },
-            error: function (error) {
-                console.error('Error:', error);
-            }
-        });
-    }
-    function fetchUserDataFromAWS(name, d_name) {
+        console.log(search_term);
+        const suggestionsDiv = document.getElementById('suggestions');
+         $.ajax({
+             url: '/get_userId',
+             type: 'POST',
+             data: { search_term: search_term },
+             
+             success: function (response) {
+                 const hospitalInfo = response.hospital_info;
+                 console.log("Hospital Info:", hospitalInfo);
+                 // Clear previous suggestions
+                 suggestionsDiv.innerHTML = '';
+                 // Show all hospital IDs and their statuses
+                 hospitalInfo.forEach(hospital => {
+                     const suggestionItem = document.createElement('div');
+                     suggestionItem.classList.add('suggestion-item');
+ 
+                     // Add hospital ID and status
+                     suggestionItem.innerHTML = `
+                         ${hospital.HospitalID} - 
+                         <span class="${hospital.Status.toLowerCase()}">${hospital.Status}</span>
+                     `;
+ 
+                     // Add click event to fetch and display hospital details
+                     suggestionItem.addEventListener('click', function() {
+                         fetchHospitalDetails(hospital.HospitalID);
+                         fetchUserData(hospital.HospitalID,search_term)
+                     });
+ 
+                     suggestionsDiv.appendChild(suggestionItem);
+                 })
+             },
+             error: function (error) {
+                 console.error('Error:', error);
+             }
+         });
+     }
+    
+    function fetchUserData(name, d_name) {
         UserName = name;
         DeviceName = d_name;
         $.ajax({
@@ -103,10 +77,9 @@ $(document).ready(function () {
                 if (response.status === "success") {
                     const header = response.data.header;
                     const lastRow = response.data.last_row;
-                    container.style.display = "block";
+                    PatientDetailscontainer.style.display = "block";
                     loadingMessage.innerHTML = "";
-                    container.innerHTML = "";
-
+                    PatientDetailscontainer.innerHTML = "";
                     const headerHTML = header.map((value, index) => `
                             <div class="form-row-detials">
                                 <label class="form-label">${value.toUpperCase()}</label>
@@ -114,7 +87,7 @@ $(document).ready(function () {
                             </div>
                         `).join("");
 
-                    container.innerHTML = `
+                    PatientDetailscontainer.innerHTML = `
                             <div class="form-layout">
                                 <h2 class="form-heading">Patient Details</h2>
                                 ${headerHTML}
@@ -125,7 +98,7 @@ $(document).ready(function () {
                         `;
                     document.getElementById("editconfig").addEventListener("click", () => {
                         createEditableFields(lastRow, header)
-                        container.style.display = "none";
+                        PatientDetailscontainer.style.display = "none";
                     });
 
                 } else {
@@ -149,6 +122,7 @@ $(document).ready(function () {
 
     // Function to fetch and display hospital details
     function fetchHospitalDetails(hospitalID) {
+        HospitalDetailsContainer.style.display = "block"
         fetch(`/get_hospital_details/${hospitalID}`)
             .then(response => response.json())
             .then(data => {
@@ -174,7 +148,7 @@ $(document).ready(function () {
                 // Render pie chart
                 destroyChart(); // Destroy any existing chart before rendering
                 renderPieChart(data.usage_days, remainingDays);
-                fetchUserDataFromAWS(hospitalID,DeviceName)
+                fetchUserData(hospitalID,DeviceName)
             })
             .catch(error => {
                 console.error('Error fetching hospital details:', error);
@@ -241,7 +215,7 @@ $(document).ready(function () {
         `;
         document.getElementById("cancelButton").addEventListener("click", () => {
             containereditable.style.display = "none";
-            container.style.display = "block";
+            PatientDetailscontainer.style.display = "block";
         });
         document.getElementById("saveChangesButton").addEventListener("click", () => {
             const formInputs = document.querySelectorAll(".editable-input");
@@ -278,7 +252,7 @@ $(document).ready(function () {
                 console.log("Updated Data:", updatedData); // Updated data including non-editable fields
                 updateDataInAWS(updatedData); // Pass updated data to AWS function
                 containereditable.style.display = "none";
-                container.style.display = "block";
+                PatientDetailscontainer.style.display = "block";
             } else {
                 alert("Please fill in all required fields.");
             }
@@ -299,7 +273,7 @@ $(document).ready(function () {
                 if (response.status === "success") {
                     showUploadStatus("Changes saved successfully!", "success");
 
-                    fetchUserDataFromAWS(UserName, DeviceName);
+                    fetchUserData(UserName, DeviceName);
                 } else {
 
                     showUploadStatus("Failed to upload data to AWS.", "error");
@@ -368,5 +342,5 @@ $(document).ready(function () {
     }
 
     // Call the function to fetch hospital suggestions when the page loads
-    window.onload = getSuggestions;
+    window.onload = getUserID(DEVICE_NAME);
 });

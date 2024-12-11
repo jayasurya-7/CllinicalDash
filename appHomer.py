@@ -11,34 +11,9 @@ keysFilePath = "C:/homer_accessKeys.csv"
 path_r= "C:\\Homer-Data"
 pathCsv= os.path.join(path_r, "PlutoUserDetails.csv")
 app = Flask(__name__)
-global DEVICE_NAME
-DEVICE_NAME = "PLUTO"
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/get_hosID', methods=['GET'])
-def get_all_hospital_ids():
-    hospital_info = []  # List to store hospital info with ID and Status
-
-    with open(pathCsv, mode='r') as file:
-        csv_reader = csv.DictReader(file)
-        for row in csv_reader:
-            hospital_id = row['HospitalID']
-            status = row['Status']  # Assuming the status is in the CSV
-
-            # You can apply any logic to determine the status if not already in the CSV
-            # For example, if status is calculated based on some criteria, use that logic here
-            # Example: status = "Done" if row['SomeCondition'] == "True" else "Undone"
-
-            # Add HospitalID and Status to the hospital_info list
-            hospital_info.append({
-                'HospitalID': hospital_id,
-                'Status': status
-            })
-
-    # Return the hospital IDs along with their statuses as a JSON response
-    return jsonify({'hospital_info': hospital_info})
 
 @app.route('/get_userId', methods=['POST'])
 def get_hospital_ids():
@@ -162,7 +137,6 @@ def get_hospital_details(hospital_id):
     try:
         config_file = os.path.join(path_r, hospital_id,DEVICE_NAME , "configdata.csv")
         session_file = os.path.join(path_r, hospital_id,DEVICE_NAME, "session.csv")
-        print(config_file, session_file)
         if not os.path.exists(config_file) or not os.path.exists(session_file):
             return jsonify({"error": "Data not found for the given Hospital ID"}), 404
 
