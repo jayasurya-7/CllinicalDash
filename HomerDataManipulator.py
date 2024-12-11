@@ -65,6 +65,7 @@ for user_id_folder in os.listdir(BASE_DIRECTORY):
                 # Load session data
                 session_df = pd.read_csv(session_file)
                 session_df["DateTime"] = pd.to_datetime(session_df["DateTime"], format="%d-%m-%Y %H:%M:%S", errors="coerce")
+                print(config_df['hospno'])
                 current_date = datetime.now().strftime("%d-%m-%Y")
 
                 # Filter for current date
@@ -133,6 +134,8 @@ for user_id_folder in os.listdir(BASE_DIRECTORY):
                 extdata_df = session_df[[
                     "DateTime", "SessionNumber", "SessionDuration", "GameName", "GameDuration", "Mechanism" if DEVICE_NAME == "PLUTO" else "Movement", "MoveTime"
                 ]]
+                # Ensure DateTime is formatted as dd-mm-yyyy hh:mm:ss before saving
+                extdata_df["DateTime"] = extdata_df["DateTime"].dt.strftime("%d-%m-%Y %H:%M:%S")
                 extdata_df.to_csv(extdata_file, index=False)
                 
                 # Group session data by Date, SessionNumber, Mechanism, and GameName, summing GameDuration

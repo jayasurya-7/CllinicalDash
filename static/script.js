@@ -1,4 +1,5 @@
 let usageChart; // Declare the chart globally
+let devChart;
 DEVICE_NAME = "PLUTO"
 $(document).ready(function () {
     
@@ -51,6 +52,7 @@ $(document).ready(function () {
                      // Add click event to fetch and display hospital details
                      suggestionItem.addEventListener('click', function() {
                          fetchHospitalDetails(hospital.HospitalID);
+                         devChart(hospital.HospitalID);
                          fetchUserData(hospital.HospitalID,search_term)
                      });
  
@@ -117,8 +119,15 @@ $(document).ready(function () {
     function destroyChart() {
         if (usageChart) {
             usageChart.destroy(); // Destroy the existing chart
-            usageChart = null;    // Reset the chart variable
+            window.devChart.destroy();
+            usageChart = null; 
+            window.devChart=null;
+               // Reset the chart variable
         }
+        // if(devChart){
+        //     devChart.destroy();
+        //     devChart=null;
+        // }
     }
 
     // Function to fetch and display hospital details
@@ -322,7 +331,11 @@ $(document).ready(function () {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false,
+                    display: true,
+                    position:"bottom",
+                    labels:{
+                        color:"white"
+                    }
                 },
                 tooltip: {
                     callbacks: {
@@ -341,6 +354,347 @@ $(document).ready(function () {
             options: options
         });
     }
+    // function devChart(hospitalID){
+    //     fetch(`/chart-data/${hospitalID}`)
+    //         .then(response => response.json())
+    //         .then(chartData => {
+    //             const ctx = document.getElementById('devChart').getContext('2d');
+    //             console.log(chartData)
+    //             window.devChart = new Chart(ctx, {
+    //                 type: 'scatter', // Base type, combines bubble and line
+    //                 data: chartData,
+    //                 options: {
+    //                     responsive: true,
+    //                     maintainAspectRatio:false,
+    //                     scales: {
+    //                         x: {
+    //                             type: 'time',
+    //                             time: {
+    //                                 unit: 'day', // Set X-axis to display days
+    //                                 displayFormats: {
+    //                                     day: 'dd-MM-yyyy', // Format the date as dd-mm-yyyy on X-axis
+    //                                 }
+    //                             },
+    //                             title: {
+    //                                 display: true,
+    //                                 text: 'Date',
+    //                             },
+    //                         },
+    //                         y: {
+    //                             title: {
+    //                                 display: true,
+    //                                 text: 'Session Duration',
+    //                             },
+    //                             min: -0.6,
+    //                             max:180,
+    //                             display: false,
+    //                             grid: {
+    //                               display: false,
+    //                             },
+    //                         },
+    //                     },
+    //                     tooltips: {
+    //                         callbacks: {
+    //                             // Custom tooltip label to format date and session duration
+    //                             label: function(tooltipItem) {
+    //                                 // Format the X value (date) in dd-MM-yyyy format
+    //                                 const date = new Date(tooltipItem.xLabel);
+    //                                 const formattedDate = `${('0' + date.getDate()).slice(-2)}-${('0' + (date.getMonth() + 1)).slice(-2)}-${date.getFullYear()}`;
+                                    
+    //                                 // Get the session duration (y value)
+    //                                 const sessionDuration = tooltipItem.yLabel;
+    
+    //                                 // Return the custom tooltip content
+    //                                 return `Date: ${formattedDate}, Duration: ${sessionDuration} min`;
+    //                             }
+    //                         }
+    //                     }
+    //                 },
+    //             });
+    //         })
+    //         .catch(error => console.error('Error fetching chart data:', error));
+    // }
+ 
+    // function devChart(hospitalID) {
+    //     fetch(`/chart-data/${hospitalID}`)
+    //         .then(response => response.json())
+    //         .then(chartData => {
+    //             console.log("Fetched Chart Data:", chartData); // Debug fetched data
+    
+    //             // Populate chartDataPoints array
+    //             chartDataPoints = chartData.datasets[1].data.map(point => ({
+    //                 date: point.x,
+    //                 sessionDuration: point.y,
+    //             }));
+    //             console.log("Chart Data Points Array:", chartDataPoints); // Debug array content
+    
+    //             const ctx = document.getElementById('devChart').getContext('2d');
+    //             window.devChart = new Chart(ctx, {
+    //                 type: 'scatter',
+    //                 data: {
+    //                     labels: chartData.labels,
+    //                     datasets: chartData.datasets,
+    //                 },
+    //                 options: {
+    //                     responsive: true,
+    //                     maintainAspectRatio: false,
+    //                     scales: {
+    //                         x: {
+    //                             type: 'category',
+    //                             title: { display: true, text: 'Date' },
+    //                         },
+    //                         y: {
+    //                             title: { display: true, text: 'Session Duration' },
+    //                             min: -0.6,
+    //                             max: 180,
+    //                         },
+    //                     },
+    //                     onClick: function (event, activeElements) {
+    //                         if (activeElements.length > 0) {
+    //                             const activePoint = activeElements[0];
+    //                             const index = activePoint.index; // Index of the clicked point in the dataset
+                        
+    //                             if (index >= 0 && index < chartDataPoints.length) {
+    //                                 const clickedData = chartDataPoints[index]; // Reference the chartDataPoints array
+    //                                 console.log("Clicked Data Point:", clickedData);
+                        
+    //                                 // Extract the date and session duration
+    //                                 const clickedDate = clickedData.date;
+    //                                 const sessionDuration = clickedData.sessionDuration;
+                        
+    //                                 // Fetch mechanism data or take other actions
+    //                                 fetchMechanismData(hospitalID, clickedDate);
+                        
+    //                                 // Optional: Smooth scroll to details section
+    //                                 scrollToDetails();
+    //                             } else {
+    //                                 console.error("Index out of bounds or invalid:", index);
+    //                             }
+    //                         } else {
+    //                             console.error("No active element clicked.");
+    //                         }
+    //                     }
+                        
+    //                 },
+    //             });
+    //         })
+    //         .catch(error => console.error('Error fetching chart data:', error));
+    // }
+    
+    // Helper function to fetch mechanism data for a specific date
+    
+
+
+    let chartDataPoints = []; // Array to store date and session duration points
+
+    function devChart(hospitalID) {
+        fetch(`/chart-data/${hospitalID}`)
+            .then(response => response.json())
+            .then(chartData => {
+                console.log("Fetched Chart Data:", chartData); // Debug fetched data
+    
+                // Populate chartDataPoints array
+                chartDataPoints = chartData.datasets[1].data.map(point => ({
+                    date: point.x,
+                    sessionDuration: point.y,
+                }));
+                console.log("Chart Data Points Array:", chartDataPoints); // Debug array content
+    
+                // Modify the dataset to include all points, but set pointRadius to 0 for sessionDuration 0
+                const updatedDatasets = chartData.datasets.map(dataset => {
+                    if (dataset.label === "Session Bubble") {
+                        return {
+                            ...dataset,
+                            data: dataset.data.map(point => ({
+                                ...point,
+                                // Set point radius to 0 if sessionDuration is 0
+                                r: point.y > 0 ? 10 : 0,
+                            })),
+                        };
+                    }
+                    return dataset;
+                });
+    
+                const ctx = document.getElementById('devChart').getContext('2d');
+                window.devChart = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: updatedDatasets, // Use the modified dataset
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'category',
+                                title: { display: true, text: 'Date' },
+                            },
+                            y: {
+                                title: { display: true, text: 'Session Duration' },
+                                min: -0.6,
+                                max: 180,
+                            },
+                        },
+                        onClick: function (event, activeElements) {
+                            if (activeElements.length > 0) {
+                                const activePoint = activeElements[0];
+                                const index = activePoint.index; // Index of the clicked point in the dataset
+    
+                                if (index >= 0 && index < chartDataPoints.length) {
+                                    const clickedData = chartDataPoints[index]; // Reference the chartDataPoints array
+                                    console.log("Clicked Data Point:", clickedData);
+    
+                                    // Extract the date and session duration
+                                    const clickedDate = clickedData.date;
+                                    const sessionDuration = clickedData.sessionDuration;
+                                    const dateParts = clickedDate.split('-'); // Assuming format is yyyy-mm-dd
+                                    const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+    
+                                    console.log("Formatted Clicked Date:", formattedDate); // Output the formatted date
+    
+                                    // Fetch mechanism data or take other actions
+                                    fetchMechanismData(hospitalID, formattedDate);
+                                    fetchSessionData(hospitalID, formattedDate);
+                                    // Optional: Smooth scroll to details section
+                                    scrollToDetails();
+                                } else {
+                                    console.error("Index out of bounds or invalid:", index);
+                                }
+                            } else {
+                                console.error("No active element clicked.");
+                            }
+                        }
+                    },
+                });
+            })
+            .catch(error => console.error('Error fetching chart data:', error));
+    }
+    
+    
+
+    
+    // Optional: Helper function to scroll to the details section
+    function scrollToDetails() {
+        const target = document.getElementById('detailsSection');
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+    
+    
+ 
+    
+
+
+    
+    
+    function fetchMechanismData(hospitalID, selectedDate) {
+        fetch(`/fetch-mechanism-data/${hospitalID}/${selectedDate}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.error);
+                } else {
+                    console.log(data);
+                    displayBarChart(data);
+                }
+            })
+            .catch(error => console.error('Error fetching mechanism data:', error));
+    }
+    
+    function displayBarChart(data) {
+        const ctx = document.getElementById('mechChartID').getContext('2d');
+        if (window.mechChart) {
+            window.mechChart.destroy();
+        }
+        window.mechChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.mechanisms,
+                datasets: [{
+                    label: 'Game Duration',
+                    data: data.durations,
+                    backgroundColor: 'rgba(0, 123, 255, 0.6)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Duration (mins)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+// Fetch session data from the backend and generate pie charts for each session
+function fetchSessionData(hospitalID, selectedDate) {
+    fetch(`/fetch-session-data/${hospitalID}/${selectedDate}`)
+        .then(response => response.json())
+        .then(sessionData => {
+            if (sessionData.error) {
+                console.error('Error:', sessionData.error);
+            } else {
+                console.log(sessionData);
+                // Create pie charts for each session
+                sessionData.sessions.forEach(session => {
+                    const mechanisms = session['Mechanism'].tolist();
+                    const durations = session['GameDuration'].tolist();
+                    createPieChart(session.SessionNumber, mechanisms, durations);
+                });
+            }
+        })
+        .catch(error => console.error('Error fetching session data:', error));
+}
+
+// Function to create pie charts dynamically for each session
+function createPieChart(sessionNumber, mechanisms, durations) {
+    const pieChartContainer = document.getElementById('pieChartsContainer');  // A container for the pie charts
+    const canvas = document.createElement('canvas');
+    pieChartContainer.appendChild(canvas);
+
+    new Chart(canvas, {
+        type: 'pie',
+        data: {
+            labels: mechanisms,
+            datasets: [{
+                data: durations,
+                backgroundColor: [
+                    'rgba(0, 123, 255, 0.6)', // Blue
+                    'rgba(255, 99, 132, 0.6)', // Red
+                    'rgba(75, 192, 192, 0.6)', // Green
+                    'rgba(255, 159, 64, 0.6)', // Orange
+                    'rgba(153, 102, 255, 0.6)', // Purple
+                ],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return `${tooltipItem.label}: ${tooltipItem.raw} mins`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+   
 
     // Call the function to fetch hospital suggestions when the page loads
     window.onload = getUserID(DEVICE_NAME);

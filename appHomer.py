@@ -195,5 +195,160 @@ def get_hospital_details(hospital_id):
     
 
 
+@app.route('/chart-data/<hospital_id>', methods=['GET'])
+def get_chart_data(hospital_id):
+    try:
+        # Construct file paths
+        config_file = os.path.join(path_r, hospital_id, DEVICE_NAME, "configdata.csv")
+        ext_file = os.path.join(path_r, hospital_id, DEVICE_NAME, "extdata.csv")
+
+        # Load CSV files
+        ext_data = pd.read_csv(ext_file)
+        config_data = pd.read_csv(config_file)
+
+        # Parse dates using the correct format
+        start_date = datetime.strptime(config_data['startdate'].iloc[-1], '%d-%m-%Y')
+        end_date = datetime.strptime(config_data['end '].iloc[-1], '%d-%m-%Y')
+
+        # Debugging: Print parsed dates
+        print(f"Start Date: {start_date}, End Date: {end_date}")
+
+        # Create a list of dates spanning the range specified in configdata.csv
+        date_range = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
+
+        # Convert the DateTime column to datetime in extdata.csv with the correct format
+        ext_data['DateTime'] = pd.to_datetime(ext_data['DateTime'], format='%d-%m-%Y %H:%M:%S')
+        ext_data['Date'] = ext_data['DateTime'].dt.date
+
+        # Aggregate session durations by date
+        session_duration_by_date = ext_data.groupby('Date')['MoveTime'].sum() / 60 
+        print(session_duration_by_date)
+        # Ensure all dates in date_range are included, even if they are missing in ext_data
+        labels = [date.strftime('%Y-%m-%d') for date in date_range]
+        line_data = [
+            session_duration_by_date.get(date.date(), 0)  # Fill with 0 if date is missing
+            for date in date_range
+        ]
+        print("lD :" ,line_data)
+        # Prepare bubble data with session durations greater than 0
+        bubble_data = [
+            {"x": date.strftime('%Y-%m-%d'), "y": session_duration_by_date.get(date.date(), 0), "r": 10}
+            for date in date_range  # Include all dates, even those with 0 session duration
+        ]
+        print(bubble_data)
+        # Prepare chart data for response
+        chart_data = {
+            "labels": labels,
+            "datasets": [
+                {
+                    "label": "Session Duration",
+                    "data": line_data,
+                    "borderColor": "blue",
+                    "backgroundColor": "rgba(0, 0, 255, 0.1)",
+                    "type": "line",
+                    "fill": False,
+                },
+                {
+                    "label": "Session Bubble",
+                    "data": bubble_data,
+                    "backgroundColor": "rgba(255, 0, 0, 0.6)",
+                    "hoverBackgroundColor": "rgba(255, 0, 0, 0.8)",
+                    "type": "bubble",
+                }
+            ]
+        }
+        
+        
+        return jsonify(chart_data)
+
+    except FileNotFoundError as fnf_error:
+        print(f"File not found: {fnf_error}")
+        return jsonify({"error": "Configuration or data file missing."}), 500
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+
+@app.route('/fetch-mechanism-data/<hospital_id>/<selected_date>', methods=['GET'])
+def fetch_mechanism_data(hospital_id, selected_date):
+    try:
+        # Construct the file path for the selected date
+        print("Selected date:", selected_date)
+        date_file = os.path.join(path_r, hospital_id, DEVICE_NAME, "Dates", f"{selected_date}.csv")
+        
+        # Load the CSV file for the selected date
+        date_data = pd.read_csv(date_file)
+
+        # Group by Mechanism and sum GameDuration
+        mechanism_duration = date_data.groupby('Mechanism' if DEVICE_NAME == "PLUTO" else "Movement")['GameDuration'].sum().reset_index()
+
+        # Prepare data for frontend
+        mechanisms = mechanism_duration['Mechanism'].tolist()
+        durations = mechanism_duration['GameDuration'].tolist()
+
+        # Static mechanism lists based on device type
+        if DEVICE_NAME == "PLUTO":
+            static_mechanisms = ["WFE", "WURD", "FPS", "HOC", "FME1", "FME2"]
+        elif DEVICE_NAME == "MARS":
+            static_mechanisms = ["SFE", "SABDU", "ELFE"]
+        else:
+            return jsonify({"error": "Invalid device type"}), 400
+
+        # Ensure all mechanisms (PLUTO/MARS) are present, even if they don't exist in the data (fill with 0 if necessary)
+        final_mechanisms = static_mechanisms
+        final_durations = [durations[mechanisms.index(mechanism)] if mechanism in mechanisms else 0 for mechanism in static_mechanisms]
+
+        # Prepare chart data
+        chart_datax = {
+            'mechanisms': final_mechanisms,
+            'durations': final_durations
+        }
+        print(chart_datax)
+        return jsonify(chart_datax)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/fetch-session-data/<hospital_id>/<selected_date>', methods=['GET'])
+def fetch_session_data(hospital_id, selected_date):
+    try:
+        # Construct the file path for the selected date
+        date_file = os.path.join(path_r, hospital_id, DEVICE_NAME, "Dates", f"{selected_date}.csv")
+        
+        # Load the CSV file for the selected date
+        date_data = pd.read_csv(date_file)
+
+        # Group by SessionNumber and Mechanism, summing the GameDuration for each mechanism in each session
+        session_data = date_data.groupby(['SessionNumber', 'Mechanism'])['GameDuration'].sum().reset_index()
+
+        # Organize session data by SessionNumber
+        session_mechanisms = {}
+        for session_number in session_data['SessionNumber'].unique():
+            session_mechanisms[session_number] = session_data[session_data['SessionNumber'] == session_number].copy()  # Use .copy() to avoid "SettingWithCopyWarning"
+
+        # Prepare session-based chart data for frontend
+        chart_data = {
+            'sessions': []  # List of sessions
+        }
+        
+        for session_number, session_df in session_mechanisms.items():
+            # Convert 'GameDuration' to a list and ensure it's JSON serializable
+            session_info = {
+                'SessionNumber': int(session_number),  # Convert session number to int
+                'Mechanisms': session_df['Mechanism'].tolist(),  # Convert Mechanism column to a list
+                'GameDurations': session_df['GameDuration'].astype(int).tolist()  # Convert 'GameDuration' to int and then to list
+            }
+            chart_data['sessions'].append(session_info)
+
+        # Return the data in JSON format
+        return jsonify(chart_data)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -186,7 +186,7 @@ body {
 /* Input styling */
 input[type="text"] {
   /* width: ; */
-  padding: 10px;
+  padding: 5px;
   border: 1px solid #afafaf;
   border-radius: 4px;
   outline: none;
@@ -346,10 +346,20 @@ input[type="text"]:focus {
     font-style: italic;
 }
 
+.DashContainer{
+  overflow-y: auto;
+  /* overflow-y: hidden; */
+}
 /* Chart */
 .deviceChart{
   max-width:80%;
 min-width: 900px;
 max-height: 700px;
 min-height: 500px;
+}
+.mechChart{
+  max-width:20%;
+  min-width: 500px;
+  max-height: 500px;
+  min-height: 300px;
 }
