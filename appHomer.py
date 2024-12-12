@@ -8,7 +8,7 @@ import boto3
 
 bucketName = 'homer-data'
 keysFilePath = "C:/homer_accessKeys.csv"
-path_r= "C:\\Homer-Data"
+path_r= "C:\\Users\\Admin\\Desktop\\ClinicalDash\\1012CD\\CllinicalDash\\CllinicalDash\\pythonScrips and datafoler\\Homer-Data"
 pathCsv= os.path.join(path_r, "PlutoUserDetails.csv")
 app = Flask(__name__)
 global DEVICE_NAME
@@ -243,16 +243,17 @@ def get_chart_data(hospital_id):
                 {
                     "label": "Session Duration",
                     "data": line_data,
-                    "borderColor": "blue",
-                    "backgroundColor": "rgba(0, 0, 255, 0.1)",
+                    "borderColor": "navy",
+                    "backgroundColor": None,
                     "type": "line",
-                    "fill": False,
+                    "fill": True,
                 },
                 {
                     "label": "Session Bubble",
                     "data": bubble_data,
                     "backgroundColor": "rgba(255, 0, 0, 0.6)",
-                    "hoverBackgroundColor": "rgba(255, 0, 0, 0.8)",
+                     "backgroundColor": "rgba(46, 139, 87, 0.6)",
+                    "hoverBackgroundColor": "rgba(46, 139, 87, 0.8)", 
                     "type": "bubble",
                 }
             ]
