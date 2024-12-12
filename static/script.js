@@ -2,28 +2,48 @@ let usageChart; // Declare the chart globally
 let devChart;
 DEVICE_NAME = "PLUTO"
 $(document).ready(function () {
-    
     var UserName;
     var DeviceName = "PLUTO";
     const PatientDetailscontainer = document.getElementById("homerUserDetails");// userdetials
     const containereditable = document.getElementById("editableFieldsContainer");
     const loadingMessage = document.getElementById("loadingMessage");
     const HospitalDetailsContainer = document.getElementById("detailsForm");
+    const device = document.getElementById("device");
+    const warningModal = document.getElementById("warningModal");
+    const warningText = document.getElementById("warningText");
+    const confirmEditButton = document.getElementById("confirmEdit");
+    const cancelEditButton = document.getElementById("cancelEdit");
+    const sessionChart = document.querySelector(".chart-wrapper")
+    const mechanismChart = document.querySelector(".mechChart")
+    const deviceChart = document.querySelector(".mechChart")
+    const sessiondiv = document.querySelector("session-charts-container")
+    
+    const mars = document.querySelector(".mars");
     const pluto = document.querySelector(".pluto")
     pluto.addEventListener("click",()=>{
         PatientDetailscontainer.style.display = "none";
         HospitalDetailsContainer.style.display = "none"
         console.log("pluto clicked");
         getUserID(pluto.getAttribute("device-name"));
-        
+        DeviceName = "PLUTO"
+        pluto.style.backgroundColor = "#2f6690"
+        mars.style.backgroundColor = "#3a7ca5"
+        PatientDetailscontainer.style.backgroundColor = "#2f6690"
+        HospitalDetailsContainer.style.backgroundColor = "#2f6690"
+        sessionChart.style.backgroundColor = "#2f6690"
     })
-    const mars = document.querySelector(".mars");
+    
     mars.addEventListener("click",()=>{
         console.log("mars clicked");
         PatientDetailscontainer.style.display = "none";
         HospitalDetailsContainer.style.display = "none"
         getUserID(mars.getAttribute("device-name"));
-        
+         DeviceName = "MARS"
+         pluto.style.backgroundColor = "#3a7ca5"
+         mars.style.backgroundColor =  "#183666"
+         PatientDetailscontainer.style.backgroundColor = "#183666"
+         HospitalDetailsContainer.style.backgroundColor =  "#183666"
+         sessionChart.style.backgroundColor =  "#183666"
     })
     function getUserID(search_term){
         console.log(search_term);
@@ -35,25 +55,19 @@ $(document).ready(function () {
              
              success: function (response) {
                  const hospitalInfo = response.hospital_info;
-                 console.log("Hospital Info:", hospitalInfo);
-                 // Clear previous suggestions
                  suggestionsDiv.innerHTML = '';
-                 // Show all hospital IDs and their statuses
                  hospitalInfo.forEach(hospital => {
                      const suggestionItem = document.createElement('div');
                      suggestionItem.classList.add('suggestion-item');
- 
-                     // Add hospital ID and status
                      suggestionItem.innerHTML = `
                          ${hospital.HospitalID} - 
                          <span class="${hospital.Status.toLowerCase()}">${hospital.Status}</span>
                      `;
- 
-                     // Add click event to fetch and display hospital details
                      suggestionItem.addEventListener('click', function() {
                          fetchHospitalDetails(hospital.HospitalID);
-                         devChart(hospital.HospitalID);
+                         devChart(hospital.HospitalID)
                          fetchUserData(hospital.HospitalID,search_term)
+                         
                      });
  
                      suggestionsDiv.appendChild(suggestionItem);
@@ -67,7 +81,6 @@ $(document).ready(function () {
     
     function fetchUserData(name, d_name) {
         UserName = name;
-        DeviceName = d_name;
         $.ajax({
             url: '/get_user_data',
             type: 'POST',
@@ -79,29 +92,73 @@ $(document).ready(function () {
                 if (response.status === "success") {
                     const header = response.data.header;
                     const lastRow = response.data.last_row;
+                    console.log("working")
                     PatientDetailscontainer.style.display = "block";
                     loadingMessage.innerHTML = "";
                     // PatientDetailscontainer.innerHTML = "";
-
-                    const headerHTML = header.map((value, index) => `
+                    //changed
+                    const headerHTML = header.map((value, index) => {
+                        let displayValue = lastRow[index];
+                        if (value.toLowerCase() === "usehand") {
+                            const numericValue = Number(lastRow[index]);
+                            displayValue = numericValue === 1 ? "Right Hand" : numericValue === 2 ? "Left Hand" : displayValue;
+                        }
+                        console.log(displayValue)
+                        return `
                             <div class="form-row-detials">
                                 <label class="form-label">${value.toUpperCase()}</label>
-                                <label class="form-input">${lastRow[index]}</label>
+                                <label class="form-input">${displayValue}</label>
                             </div>
-                        `).join("");
-
+                        `;
+                    }).join("");
+                    
                     PatientDetailscontainer.innerHTML = `
                             <div class="form-layout">
                                 <h2 class="form-heading">Patient Details</h2>
                                 ${headerHTML}
                                 <div class="form-actions">
-                                     <button id="editconfig" class="btn btn-success">Edit Configuation</button>
+                                     <button id="editconfig" class="btn btn-success">CHANGE DURATION</button>
                                 </div>
                             </div>
                         `;
+                    
+                        function parseCustomDate(dateString) {
+                            const [day, month, year] = dateString.split('-').map(Number); 
+                            return new Date(year, month - 1, day); 
+                        }
                     document.getElementById("editconfig").addEventListener("click", () => {
-                        createEditableFields(lastRow, header)
-                        PatientDetailscontainer.style.display = "none";
+                        console.log("click")
+                        const dateField = lastRow[header.indexOf("Date")]; 
+                        const parsedDate = parseCustomDate(dateField);
+                        const currentDate = new Date();
+                        if (!isNaN(parsedDate)) {
+                            console.log(parsedDate)
+                            console.log(currentDate)
+                            const diffInTime = currentDate - parsedDate; 
+                            const diffInDays = diffInTime / (1000 * 60 * 60 * 24); 
+                            console.log(diffInDays)
+                            if (diffInDays < 28) {
+                                warningText.innerText = `Configuration is up to date. Last updated at ${parsedDate}. Do you want to continue?`;
+                                warningModal.style.display = "flex";
+                            } else {
+                                PatientDetailscontainer.style.display="none"
+                                createEditableFields(lastRow,header)
+                            }
+                        } else {
+                            console.error("Invalid date format in field:", dateField);
+                        }
+                        confirmEditButton.addEventListener("click", () => {
+                            // Allow editing
+                            PatientDetailscontainer.style.display="none"
+                            createEditableFields(lastRow,header)
+                            warningModal.style.display = "none";
+                        });
+                        cancelEditButton.addEventListener("click", () => {
+                             // Disallow editing
+                             PatientDetailscontainer.style.display="block"
+                            warningModal.style.display = "none";
+                        });
+                       
                     });
 
                 } else {
@@ -115,24 +172,18 @@ $(document).ready(function () {
             }
         });
     }
-    // Function to destroy the chart if it exists
+
     function destroyChart() {
         if (usageChart) {
-            usageChart.destroy(); // Destroy the existing chart
-            window.devChart.destroy();
-            usageChart = null; 
-            window.devChart=null;
-               // Reset the chart variable
+            usageChart.destroy(); 
+            usageChart = null;   
         }
-        // if(devChart){
-        //     devChart.destroy();
-        //     devChart=null;
-        // }
     }
 
     // Function to fetch and display hospital details
     function fetchHospitalDetails(hospitalID) {
         HospitalDetailsContainer.style.display = "block"
+        device.innerText = DeviceName;
         fetch(`/get_hospital_details/${hospitalID}`)
             .then(response => response.json())
             .then(data => {
@@ -140,8 +191,6 @@ $(document).ready(function () {
                     alert(data.error);
                     return;
                 }
-
-                // Populate form fields with data
                 document.getElementById('hospitalID').value = hospitalID;
                 document.getElementById('startDate').value = data.start_date;
                 document.getElementById('endDate').value = data.end_date;
@@ -164,28 +213,23 @@ $(document).ready(function () {
                 console.error('Error fetching hospital details:', error);
             });
     }
+
     function createEditableFields(rowData, headers) {
         containereditable.style.display = "block";
         containereditable.innerHTML = "";
 
         const formatDate = (date) => {
-            const day = String(date.getDate()).padStart(2, '0'); // Ensure two digits
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
-            return `${day}-${month}-${year}`; // Return in DD-MM-YYYY format
+            return `${day}-${month}-${year}`; 
         };
-        
-        // Current Date
+    
         const currentDate = formatDate(new Date());
-        
         // End Date (28 days from today)
         const endDate = new Date();
         endDate.setDate(endDate.getDate() + 28);
         const formattedEndDate = formatDate(endDate);
-        
-        console.log(currentDate);       // Example Output: 10-12-2024
-        console.log(formattedEndDate);  // Example Output: 07-01-2025
-        
         rowData[headers.indexOf("Date")] = currentDate;
         rowData[headers.indexOf("startdate")] = currentDate;
         rowData[headers.indexOf("end ")] = formattedEndDate;
@@ -571,9 +615,6 @@ $(document).ready(function () {
             .catch(error => console.error('Error fetching chart data:', error));
     }
     
-    
-
-    
     // Optional: Helper function to scroll to the details section
     function scrollToDetails() {
         const target = document.getElementById('detailsSection');
@@ -615,7 +656,15 @@ $(document).ready(function () {
                 datasets: [{
                     label: 'Game Duration',
                     data: data.durations,
-                    backgroundColor: 'rgba(0, 123, 255, 0.6)',
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 205, 86, 0.7)'
+                    ],
+                    borderWidth: 1,
                 }]
             },
             options: {
@@ -712,6 +761,9 @@ $(document).ready(function () {
                 plugins: {
                     legend: {
                         position: 'bottom',
+                        labels:{
+                            color:"white"
+                        }
                     },
                     tooltip: {
                         callbacks: {
@@ -723,6 +775,7 @@ $(document).ready(function () {
                     title: {
                         display: true,
                         text: `Mechanisms for Session ${sessionNumber}`,
+                        color:"White"
                     },
                 },
                 responsive: true,

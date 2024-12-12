@@ -51,9 +51,17 @@ body {
 }
 
 /* Hover Effect */
-.pluto:hover,
-.mars:hover {
+.pluto:hover
+ {
   background-color: #165a75; /* Change to your preferred color */
+  color: white; /* Optional: Change text color */
+  border-radius: 5px;
+  border: 1px solid white;
+  border-right: 1px solid white;
+
+}
+.mars:hover {
+  background-color: #183666; /* Change to your preferred color */
   color: white; /* Optional: Change text color */
   border-radius: 5px;
   border: 1px solid white;
@@ -217,7 +225,7 @@ input[type="text"]:focus {
     justify-content: center;
     align-items: left;
     align-self: center;
-    background-color: #f7f7f7;
+    background: #2f6690;
     padding: 10px;
     border-radius: 10px;
     /* Rounded corners */
@@ -246,6 +254,7 @@ input[type="text"]:focus {
 }
 
 .form-heading {
+    color: white;
     text-align: center;
     margin-bottom: 20px;
 }
@@ -260,6 +269,7 @@ input[type="text"]:focus {
 }
 
 .form-label {
+   color: white;
     text-align: left;
     font-weight: bold;
 }
@@ -271,7 +281,7 @@ input[type="text"]:focus {
 
 .form-input {
     text-align: left;
-    color: #555;
+    color: white;
 }
 
 .form-actions {
@@ -288,8 +298,9 @@ input[type="text"]:focus {
 }
 
 .btn-success {
-    background-color: green;
-    color: white;
+    background-color: rgb(75, 251, 75);
+    color: rgb(63, 98, 148);
+    font-weight: bold;
 }
 
 .btn-danger {
@@ -354,22 +365,23 @@ input[type="text"]:focus {
 /* Chart */
 .deviceChart{
   max-width:100%;
-min-width: 900px;
-max-height: 700px;
-min-height: 500px;
+min-width: 860px;
+max-height: 500px;
+min-height: 300px;
 }
 .mechChart{
   max-width:100%;
-  min-width: 300px;
-  max-height: 700px;
-  min-height: 500px;
+  min-width: 270px;
+  max-height: 500px;
+  min-height: 300px;
 }
 #session-charts-container {
-  background-color: #f5f5f5; /* Optional: Background for clarity */
+  background: #f4f8fa; /* Optional: Background for clarity */
 }
 
 .chart-wrapper {
-  background: white;
+  color: white;
+  background:  #2f6690;
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 10px;
@@ -378,6 +390,7 @@ min-height: 500px;
 }
 
 #session-charts-container canvas {
+ 
   max-width: 100%; /* Ensure charts are responsive */
   height: auto;
 }
@@ -409,4 +422,63 @@ min-height: 500px;
   gap: 3px; /* Add spacing between the grid items */
   align-items: center; /* Align items vertically */
   width: 100%; /* Ensure the container spans full width */
+}
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9000; /* Higher than other elements */
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow for better visibility */
+  max-width: 400px;
+  width: 90%; /* Responsive width */
+}
+
+button {
+  margin: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+#confirmEdit {
+  background-color: #4CAF50;
+  color: white;
+}
+#cancelEdit {
+  background-color: #f44336;
+  color: white;
+}
+#loadingMessage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+}
+
+#statusmessage {
+  width: fit-content;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+/* Loading message */
+#loading-message {
+  text-align: center;
+  font-size: 18px;
+  color: #1d4e89;
 }

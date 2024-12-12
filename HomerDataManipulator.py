@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 
 # Directory path containing user ID folders
-BASE_DIRECTORY = "C:\\Users\\Admin\\Desktop\\ClinicalDash\\1012CD\\CllinicalDash\\CllinicalDash\\pythonScrips and datafoler\\Homer-Data"
+BASE_DIRECTORY = path_r= "C:\\Homer-Data"
 
 # Device-specific configurations
 PLUTO = ["WFE", "WURD", "FPS", "HOC", "FME1", "FME2"]

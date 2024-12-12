@@ -34,6 +34,13 @@
           </div>
         </div>
       </div>
+      <div id="warningModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <p id="warningText"></p>
+            <button id="confirmEdit">YES</button>
+            <button id="cancelEdit">NO</button>
+        </div>
+    </div>
       <div class="DashContainer">
         <!-- Card-style container -->
         <div id='loadingMessage'></div>
@@ -79,7 +86,7 @@
 
               </div>
               <div class="form-row">
-                <label for="PLUTO">PLUTO</label>
+                <label for="PLUTO" id = "device">PLUTO</label>
                 <canvas id="usageChart"></canvas>
               </div>
             </form>

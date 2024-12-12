@@ -8,7 +8,7 @@ import boto3
 
 bucketName = 'homer-data'
 keysFilePath = "C:/homer_accessKeys.csv"
-path_r= "C:\\Users\\Admin\\Desktop\\ClinicalDash\\1012CD\\CllinicalDash\\CllinicalDash\\pythonScrips and datafoler\\Homer-Data"
+path_r= "C:\\Homer-Data"
 pathCsv= os.path.join(path_r, "PlutoUserDetails.csv")
 app = Flask(__name__)
 global DEVICE_NAME
@@ -276,15 +276,16 @@ def fetch_mechanism_data(hospital_id, selected_date):
         # Construct the file path for the selected date
         print("Selected date:", selected_date)
         date_file = os.path.join(path_r, hospital_id, DEVICE_NAME, "Dates", f"{selected_date}.csv")
-        
+        print(DEVICE_NAME)
         # Load the CSV file for the selected date
         date_data = pd.read_csv(date_file)
-
+        data = "Mechanism" if DEVICE_NAME == "PLUTO" else "Movement"
+        print(data)
         # Group by Mechanism and sum GameDuration
-        mechanism_duration = date_data.groupby('Mechanism' if DEVICE_NAME == "PLUTO" else "Movement")['GameDuration'].sum().reset_index()
+        mechanism_duration = date_data.groupby("Mechanism" if DEVICE_NAME == "PLUTO" else "Movement")['GameDuration'].sum().reset_index()
 
         # Prepare data for frontend
-        mechanisms = mechanism_duration['Mechanism'].tolist()
+        mechanisms = mechanism_duration["Mechanism" if DEVICE_NAME == "PLUTO" else "Movement"].tolist()
         durations = mechanism_duration['GameDuration'].tolist()
 
         # Static mechanism lists based on device type
@@ -319,7 +320,7 @@ def fetch_session_data(hospital_id, selected_date):
         date_data = pd.read_csv(date_file)
 
         # Group by SessionNumber and Mechanism, summing the GameDuration
-        session_data = date_data.groupby(['SessionNumber', 'Mechanism'])['GameDuration'].sum().reset_index()
+        session_data = date_data.groupby(['SessionNumber', "Mechanism" if DEVICE_NAME == "PLUTO" else "Movement"])['GameDuration'].sum().reset_index()
 
         # Structure the data for each session
         sessions = []
@@ -327,7 +328,7 @@ def fetch_session_data(hospital_id, selected_date):
             session_df = session_data[session_data['SessionNumber'] == session_number]
             sessions.append({
                 "SessionNumber": int(session_number),
-                "Mechanisms": session_df['Mechanism'].tolist(),
+                "Mechanisms": session_df["Mechanism" if DEVICE_NAME == "PLUTO" else "Movement"].tolist(),
                 "GameDurations": session_df['GameDuration'].astype(int).tolist()
             })
 
