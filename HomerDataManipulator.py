@@ -116,7 +116,7 @@ for user_id_folder in os.listdir(BASE_DIRECTORY):
                     raise ValueError("Invalid DateTime format in some rows.")
 
                 # Calculate GameDuration
-                session_df["GameDuration"] = session_df["MoveTime"]/60
+                session_df["GameDuration"] = round(session_df["MoveTime"]/60, 2)
 
                 # Add Date column
                 session_df["Date"] = session_df["DateTime"].dt.strftime("%d-%m-%Y")
@@ -148,8 +148,7 @@ for user_id_folder in os.listdir(BASE_DIRECTORY):
                     print(output_date_file_path)
                     date_group[["SessionNumber","Mechanism" if DEVICE_NAME == "PLUTO" else "Movement", "GameName", "GameDuration"]].to_csv(output_date_file_path, index=False)
                     # print(f"Created {output_date_file_path} successfully for user {user_id_folder}.")
-                    if DEVICE_NAME== "MARS":
-                        print("MAAAAAAAAAAAAAAAAAAAAAARS")
+
 
             except Exception as e:
                 print(f"Error processing session file in2 {user_id_folder}: {e}")

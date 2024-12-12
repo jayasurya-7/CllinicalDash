@@ -347,19 +347,66 @@ input[type="text"]:focus {
 }
 
 .DashContainer{
-  overflow-y: auto;
+ overflow-y: auto; 
   /* overflow-y: hidden; */
+  max-height: 2000px;
 }
 /* Chart */
 .deviceChart{
-  max-width:80%;
+  max-width:100%;
 min-width: 900px;
 max-height: 700px;
 min-height: 500px;
 }
 .mechChart{
-  max-width:20%;
-  min-width: 500px;
-  max-height: 500px;
-  min-height: 300px;
+  max-width:100%;
+  min-width: 300px;
+  max-height: 700px;
+  min-height: 500px;
+}
+#session-charts-container {
+  background-color: #f5f5f5; /* Optional: Background for clarity */
+}
+
+.chart-wrapper {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+#session-charts-container canvas {
+  max-width: 100%; /* Ensure charts are responsive */
+  height: auto;
+}
+
+.deviceChart,.mechChart {
+  border: 1px solid #ddd;
+
+  background-color: #ffffff; /* White background for the card */
+ 
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(50, 142, 165, 0.6); /* Subtle shadow for a card effect */
+  padding: 20px; /* Spacing inside the card */
+  margin: 3px; /* Spacing outside the card */
+ 
+  
+  text-align: center; /* Center-align the content */
+}
+.deviceChart:hover ,.mechChart:hover{
+  box-shadow: 0 6px 10px rgba(50, 142, 165, 0.85); /* Subtle shadow for a card effect */
+
+  transform: translateY(-2px); /* Subtle upward movement */
+  transition: 0.3s ease; /* Smooth transition */
+}
+
+
+.overallCharts {
+  display: grid;
+  grid-template-columns: 75% 24%; /* Define the grid structure */
+  gap: 3px; /* Add spacing between the grid items */
+  align-items: center; /* Align items vertically */
+  width: 100%; /* Ensure the container spans full width */
 }

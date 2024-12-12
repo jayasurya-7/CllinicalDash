@@ -316,34 +316,22 @@ def fetch_session_data(hospital_id, selected_date):
     try:
         # Construct the file path for the selected date
         date_file = os.path.join(path_r, hospital_id, DEVICE_NAME, "Dates", f"{selected_date}.csv")
-        
-        # Load the CSV file for the selected date
         date_data = pd.read_csv(date_file)
 
-        # Group by SessionNumber and Mechanism, summing the GameDuration for each mechanism in each session
+        # Group by SessionNumber and Mechanism, summing the GameDuration
         session_data = date_data.groupby(['SessionNumber', 'Mechanism'])['GameDuration'].sum().reset_index()
 
-        # Organize session data by SessionNumber
-        session_mechanisms = {}
+        # Structure the data for each session
+        sessions = []
         for session_number in session_data['SessionNumber'].unique():
-            session_mechanisms[session_number] = session_data[session_data['SessionNumber'] == session_number].copy()  # Use .copy() to avoid "SettingWithCopyWarning"
+            session_df = session_data[session_data['SessionNumber'] == session_number]
+            sessions.append({
+                "SessionNumber": int(session_number),
+                "Mechanisms": session_df['Mechanism'].tolist(),
+                "GameDurations": session_df['GameDuration'].astype(int).tolist()
+            })
 
-        # Prepare session-based chart data for frontend
-        chart_data = {
-            'sessions': []  # List of sessions
-        }
-        
-        for session_number, session_df in session_mechanisms.items():
-            # Convert 'GameDuration' to a list and ensure it's JSON serializable
-            session_info = {
-                'SessionNumber': int(session_number),  # Convert session number to int
-                'Mechanisms': session_df['Mechanism'].tolist(),  # Convert Mechanism column to a list
-                'GameDurations': session_df['GameDuration'].astype(int).tolist()  # Convert 'GameDuration' to int and then to list
-            }
-            chart_data['sessions'].append(session_info)
-
-        # Return the data in JSON format
-        return jsonify(chart_data)
+        return jsonify({"sessions": sessions})
 
     except Exception as e:
         print(f"Error: {e}")
