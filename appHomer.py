@@ -251,8 +251,8 @@ def get_chart_data(hospital_id):
                 {
                     "label": "Session Bubble",
                     "data": bubble_data,
-                    "backgroundColor": "rgba(255, 0, 0, 0.6)",
-                    "hoverBackgroundColor": "rgba(255, 0, 0, 0.8)",
+                    "backgroundColor": "rgba(46, 139, 87, 0.6)",
+                    "hoverBackgroundColor": "rgba(46, 139, 87, 0.8)", 
                     "type": "bubble",
                 }
             ]
@@ -321,7 +321,6 @@ def fetch_session_data(hospital_id, selected_date):
         # Group by SessionNumber and Mechanism, summing the GameDuration
         session_data = date_data.groupby(['SessionNumber', 'Mechanism'])['GameDuration'].sum().reset_index()
 
-        # Structure the data for each session
         sessions = []
         for session_number in session_data['SessionNumber'].unique():
             session_df = session_data[session_data['SessionNumber'] == session_number]

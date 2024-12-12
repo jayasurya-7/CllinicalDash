@@ -151,7 +151,7 @@ for user_id_folder in os.listdir(BASE_DIRECTORY):
 
 
             except Exception as e:
-                print(f"Error processing session file in2 {user_id_folder}: {e}")
+                print(f"Error processing session file in2 {user_id_folder}:{session_file}: {e}")
 
 # Save output data to CSV files
 if output_data_pluto:
