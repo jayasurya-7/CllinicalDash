@@ -5,6 +5,7 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 import boto3
+import math
 
 bucketName = 'homer-data'
 keysFilePath = "C:/homer_accessKeys.csv"
@@ -221,23 +222,30 @@ def get_chart_data(hospital_id):
         ext_data['Date'] = ext_data['DateTime'].dt.date
 
         # Aggregate session durations by date
-        session_duration_by_date = ext_data.groupby('Date')['MoveTime'].sum() / 60 
+        session_duration_by_date = ext_data.groupby('Date')['MoveTime'].sum() / 60
         print(session_duration_by_date)
+
         # Ensure all dates in date_range are included, even if they are missing in ext_data
         labels = [date.strftime('%Y-%m-%d') for date in date_range]
         line_data = [
             session_duration_by_date.get(date.date(), 0)  # Fill with 0 if date is missing
             for date in date_range
         ]
-        print("lD :" ,line_data)
+        print("lD :", line_data)
+
         # Prepare bubble data with session durations greater than 0
         bubble_data = [
             {"x": date.strftime('%Y-%m-%d'), "y": session_duration_by_date.get(date.date(), 0), "r": 10}
             for date in date_range  # Include all dates, even those with 0 session duration
         ]
         print(bubble_data)
-        hr_line= 90 if DEVICE_NAME=="PLUTO" else 60
-        hr_data=[{"x": label, "y": hr_line} for label in labels]
+
+        # Determine y-value for the horizontal bar line
+        horizontal_line_y = 90 if DEVICE_NAME.lower() == "pluto" else 60
+
+        # Add horizontal line data
+        horizontal_line_data = [{"x": label, "y": horizontal_line_y} for label in labels]
+
         # Prepare chart data for response
         chart_data = {
             "labels": labels,
@@ -245,29 +253,28 @@ def get_chart_data(hospital_id):
                 {
                     "label": "Session Duration",
                     "data": line_data,
-                    "borderColor": "blue",
-                    "backgroundColor": "rgba(0, 0, 255, 0.1)",
+                    "borderColor": "navy",
+                    "backgroundColor": None,
                     "type": "line",
-                    "fill": False,
+                    "fill": True,
                 },
                 {
                     "label": "Session Bubble",
                     "data": bubble_data,
-                    "backgroundColor": "rgba(255, 0, 0, 0.6)",
-                    "hoverBackgroundColor": "rgba(255, 0, 0, 0.8)",
+                    "backgroundColor": "rgba(46, 139, 87, 0.6)",
+                    "hoverBackgroundColor": "rgba(46, 139, 87, 0.8)", 
                     "type": "bubble",
                 },
-                 {
+                {
                     "label": "Target Line",
-                    "data": hr_data,
-                    "backgroundColor": "red",
+                    "data": horizontal_line_data,
+                    "borderColor": "red",
                     "borderDash": [10, 5],
                     "type": "line",
-                    "fill":False
+                    "fill": False,
                 }
             ]
         }
-        
         
         return jsonify(chart_data)
 
@@ -298,7 +305,7 @@ def fetch_mechanism_data(hospital_id, selected_date):
         mechanisms = mechanism_duration["Mechanism" if DEVICE_NAME == "PLUTO" else "Movement"].tolist()
         durations = mechanism_duration['GameDuration'].tolist()
 
-        # Static mechanism lists based on device type
+       # Static mechanism lists based on device type
         if DEVICE_NAME == "PLUTO":
             static_mechanisms = ["WFE", "WURD", "FPS", "HOC", "FME1", "FME2"]
         elif DEVICE_NAME == "MARS":
@@ -310,39 +317,38 @@ def fetch_mechanism_data(hospital_id, selected_date):
         final_mechanisms = static_mechanisms
         final_durations = [durations[mechanisms.index(mechanism)] if mechanism in mechanisms else 0 for mechanism in static_mechanisms]
 
+
+        # Read the last line of the configuration file for lines
+        config_file_path = os.path.join(path_r, hospital_id, DEVICE_NAME, "configdata.csv")
+        try:
+                # Read the config file and extract values for mechanisms dynamically
+                config_data = pd.read_csv(config_file_path)
+                
+                # Ensure that the mechanism columns match the static mechanism list
+                config_values = {}
+                for mechanism in final_mechanisms:
+                    if mechanism in config_data.columns:
+                        # Take the last row's value for the mechanism
+                        config_values[mechanism] = int(config_data[mechanism].iloc[-1])
+                    else:
+                        # Default to 0 if the mechanism is not in the file
+                        config_values[mechanism] = 0
+
+                # Create the lines list with the extracted values
+                lines = [config_values.get(mechanism, 0) for mechanism in final_mechanisms]
+        except Exception as e:
+                print(f"Error reading config file: {e}")
+                lines = [0 for _ in final_mechanisms]
+
+
         # Prepare chart data
         chart_datax = {
             'mechanisms': final_mechanisms,
-            'durations': final_durations
+            'durations':final_durations ,
+            'lines': lines  # Add lines to the chart data
         }
-        print(chart_datax)
+        print("Prepared Chart Data:", chart_datax)
         return jsonify(chart_datax)
-
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"error": str(e)}), 500
-    
-@app.route('/fetch-session-data/<hospital_id>/<selected_date>', methods=['GET'])
-def fetch_session_data(hospital_id, selected_date):
-    try:
-        # Construct the file path for the selected date
-        date_file = os.path.join(path_r, hospital_id, DEVICE_NAME, "Dates", f"{selected_date}.csv")
-        date_data = pd.read_csv(date_file)
-
-        # Group by SessionNumber and Mechanism, summing the GameDuration
-        session_data = date_data.groupby(['SessionNumber', "Mechanism" if DEVICE_NAME == "PLUTO" else "Movement"])['GameDuration'].sum().reset_index()
-
-        # Structure the data for each session
-        sessions = []
-        for session_number in session_data['SessionNumber'].unique():
-            session_df = session_data[session_data['SessionNumber'] == session_number]
-            sessions.append({
-                "SessionNumber": int(session_number),
-                "Mechanisms": session_df["Mechanism" if DEVICE_NAME == "PLUTO" else "Movement"].tolist(),
-                "GameDurations": session_df['GameDuration'].astype(int).tolist()
-            })
-
-        return jsonify({"sessions": sessions})
 
     except Exception as e:
         print(f"Error: {e}")

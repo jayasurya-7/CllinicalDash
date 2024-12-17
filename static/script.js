@@ -439,7 +439,7 @@ $(document).ready(function () {
 
     function devChart(hospitalID) {
 
-         
+       
         fetch(`/chart-data/${hospitalID}`)
             .then(response => response.json())
             .then(chartData => {
@@ -467,7 +467,13 @@ $(document).ready(function () {
                     return dataset;
                 });
     
-                const ctx = document.getElementById('devChart').getContext('2d');
+            const ctx = document.getElementById('devChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, "rgba(0, 0, 128, 0.2)");
+            gradient.addColorStop(1, "rgba(0, 0, 128, 0.6)");
+  
+            // Update chart_data with the gradient
+            chartData.datasets[0].backgroundColor = gradient;
                 window.devChart = new Chart(ctx, {
                     type: 'scatter',
                     data: {
@@ -522,14 +528,13 @@ $(document).ready(function () {
                                     const sessionDuration = clickedData.sessionDuration;
                                     const dateParts = clickedDate.split('-'); // Assuming format is yyyy-mm-dd
                                     const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-    
-                                    console.log("Formatted Clicked Date:", formattedDate); // Output the formatted date
+                                    scrollToDetails();
+                                    console.log("Formatted Clicked Date:", formattedDate); 
     
                                     // Fetch mechanism data or take other actions
                                     fetchMechanismData(hospitalID, formattedDate);
-                                    fetchSessionData(hospitalID, formattedDate);
-                                    // Optional: Smooth scroll to details section
-                                    scrollToDetails();
+                                  
+                                    
                                 } else {
                                     console.error("Index out of bounds or invalid:", index);
                                 }
@@ -543,10 +548,11 @@ $(document).ready(function () {
             .catch(error => console.error('Error fetching chart data:', error));
     }
     
+  
+  
+  
     
-
-    
-    // Optional: Helper function to scroll to the details section
+  
     function scrollToDetails() {
         const target = document.getElementById('detailsSection');
         if (target) {
@@ -568,95 +574,130 @@ $(document).ready(function () {
             .catch(error => console.error('Error fetching mechanism data:', error));
     }
     
-    function displayBarChart(data) {
-        const ctx = document.getElementById('mechChartID').getContext('2d');
-        if (window.mechChart) {
-            window.mechChart.destroy();
-        }
-        var fixedColors = [
-            "rgba(255, 99, 132, 0.7)",
-            "rgba(255, 159, 64, 0.7)",
-            "rgba(160, 32, 230, 0.7)",
-            "rgba(75, 192, 192, 0.7)",
-            "rgba(75, 112, 192, 0.7)",
-            "rgba(175, 192, 192, 0.7)",
-          ];
-        window.mechChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.mechanisms,
-                datasets: [{
+  
+  function displayBarChart(data) {
+    const ctx = document.getElementById('mechChartID').getContext('2d');
+    if (window.mechChart) {
+        window.mechChart.destroy();
+    }
+  
+    const fixedColors = [
+        "rgba(255, 99, 132, 0.7)",
+        "rgba(255, 159, 64, 0.7)",
+        "rgba(160, 32, 230, 0.7)",
+        "rgba(75, 192, 192, 0.7)",
+        "rgba(75, 112, 192, 0.7)",
+        "rgba(175, 192, 192, 0.7)",
+    ];
+  
+    // Custom plugin to draw vertical lines
+    const verticalLinePlugin = {
+        id: 'thresholdLines',
+        afterDraw: (chart) => {
+            const ctx = chart.ctx;
+            const yScale = chart.scales.y;
+            const xScale = chart.scales.x;
+            const { lines } = data;
+  
+            // Draw a line for each threshold
+            lines.forEach((threshold, index) => {
+                const x = xScale.getPixelForValue(index); // Get X position of the bar
+                const y = yScale.getPixelForValue(threshold); // Get Y position of the threshold
+  
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(x, y); // Start at the threshold position
+                ctx.lineTo(x, yScale.bottom); // Extend down to the bottom
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)'; // Black line
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([5, 5]); // Dashed line
+                ctx.stroke();
+                ctx.restore();
+            });
+        },
+    };
+  
+    window.mechChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.mechanisms,
+            datasets: [
+                {
                     label: 'Game Duration',
                     data: data.durations,
                     backgroundColor: fixedColors,
-                }]
-            },
-            plugins:[ChartDataLabels],
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max:31,
-                        title: {
-                            display: true,
-                            text: 'Duration (mins)'
-                        },
-                        grid:{
-                            display: false,
-                        }
-                    },
-                    x:{
-                        grid:{
-                            display:false,
-                        }
-                    },
-                    
                 },
-                plugins: {
+            ]
+        },
+        plugins: [ChartDataLabels, verticalLinePlugin],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 31,
                     title: {
-                      display: true,
-                      text: "Total Days Usage Duration",
-                      position: "bottom", // Add a title for the chart
-                      font: {
+                        display: true,
+                        text: 'Duration (mins)'
+                    },
+                    grid: {
+                        display: false,
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                    }
+                },
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Total Days Usage Duration",
+                    position: "top",
+                    font: {
                         size: 18,
-                      },
                     },
-                    datalabels: {
-                      color: "black",
-                      font: {
+                },
+                datalabels: {
+                    color: "black",
+                    font: {
                         weight: "bold",
-                        size: 16,
-                      },
-                      anchor: "end",
-                      align: "end",
-                      borderRadius: 4,
-                      borderWidth: 1,
-                      borderColor: "rgb(75, 192, 192)",
-                      backgroundColor: "rgb(91, 236, 241)",
+                        size: 10,
                     },
-                    legend: {
-                      display: false,
-                    },
-                    tooltip: {
-                      beginAtZero: true,
-                      callbacks: {
+                    anchor: "middle",
+                    align: "start",
+                    borderRadius: 4,
+                    borderWidth: 1,
+                    borderColor: "rgb(75, 192, 192)",
+                    backgroundColor: "rgb(91, 236, 241)",
+                },
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    callbacks: {
                         label: function (context) {
-                          var label = context.dataset.label || "";
-                          if (context.parsed.y !== null) {
-                            label += ": " + context.parsed.x;
-                          }
-                          return label;
+                            var label = context.dataset.label || "";
+                            if (context.parsed.y !== null) {
+                                label += ": " + context.parsed.y;
+                            }
+                            return label;
                         },
-                      },
                     },
-                  }
+                },
             }
-        });
-    }
+        }
+    });
+  }
+  
+  
+  
+  
     
-   
+    
     // Call the function to fetch hospital suggestions when the page loads
     window.onload = getUserID(DEVICE_NAME);
-});
+  });
+  
