@@ -236,6 +236,8 @@ def get_chart_data(hospital_id):
             for date in date_range  # Include all dates, even those with 0 session duration
         ]
         print(bubble_data)
+        hr_line= 90 if DEVICE_NAME=="PLUTO" else 60
+        hr_data=[{"x": label, "y": hr_line} for label in labels]
         # Prepare chart data for response
         chart_data = {
             "labels": labels,
@@ -254,6 +256,14 @@ def get_chart_data(hospital_id):
                     "backgroundColor": "rgba(255, 0, 0, 0.6)",
                     "hoverBackgroundColor": "rgba(255, 0, 0, 0.8)",
                     "type": "bubble",
+                },
+                 {
+                    "label": "Target Line",
+                    "data": hr_data,
+                    "backgroundColor": "red",
+                    "borderDash": [10, 5],
+                    "type": "line",
+                    "fill":False
                 }
             ]
         }

@@ -34,7 +34,7 @@ $(document).ready(function () {
         mars.style.backgroundColor = "#3a7ca5"
         PatientDetailscontainer.style.backgroundColor = "#2f6690"
         HospitalDetailsContainer.style.backgroundColor = "#2f6690"
-        sessionChart.style.backgroundColor = "#2f6690"
+        containereditable.style.backgroundColor = "#2f6690"
     })
     
     mars.addEventListener("click",()=>{
@@ -48,10 +48,10 @@ $(document).ready(function () {
         getUserID(mars.getAttribute("device-name"));
          DeviceName = "MARS"
          pluto.style.backgroundColor = "#3a7ca5"
-         mars.style.backgroundColor =  "#183666"
-         PatientDetailscontainer.style.backgroundColor = "#183666"
-         HospitalDetailsContainer.style.backgroundColor =  "#183666"
-         sessionChart.style.backgroundColor =  "#183666"
+         mars.style.backgroundColor =  "#193d58"
+         PatientDetailscontainer.style.backgroundColor = "#193d58"
+         HospitalDetailsContainer.style.backgroundColor =  "#193d58"
+         containereditable.style.backgroundColor = "#193d58"
     })
     function getUserID(search_term){
         console.log(search_term);
@@ -84,6 +84,7 @@ $(document).ready(function () {
     
                         mechanismChart.style.display = "none";
                         sessionCharts.style.display = "none";
+                        containereditable.style.display = "none"
                          fetchHospitalDetails(hospital.HospitalID);
                         //  devChart(hospital.HospitalID)
                         //  fetchUserData(hospital.HospitalID,search_term)
@@ -117,11 +118,18 @@ $(document).ready(function () {
                     loadingMessage.innerHTML = "";
                     // PatientDetailscontainer.innerHTML = "";
                     //changed
+                    time = [
+
+                    ]
                     const headerHTML = header.map((value, index) => {
                         let displayValue = lastRow[index];
                         if (value.toLowerCase() === "usehand") {
                             const numericValue = Number(lastRow[index]);
                             displayValue = numericValue === 1 ? "Right Hand" : numericValue === 2 ? "Left Hand" : displayValue;
+                        }
+                        const prescribedKeys = ["sabdu", "sfe", "elfe", "wfe", "wurd", "fps", "fme1", "fme2","hoc"];
+                        if (prescribedKeys.includes(value.toLowerCase())) {
+                            displayValue += `  [Prescribed(min)]`;
                         }
                         console.log(displayValue)
                         return `
@@ -259,7 +267,7 @@ $(document).ready(function () {
         rowData[headers.indexOf("Date")] = currentDate;
         rowData[headers.indexOf("startdate")] = currentDate;
         rowData[headers.indexOf("end ")] = formattedEndDate;
-        const editableFields = headers.filter(
+        const nonEditableFields = headers.filter(
             (header) =>
                 ![
                     "name",
@@ -276,7 +284,7 @@ $(document).ready(function () {
         containereditable.innerHTML = `
           <div class="form-layout">
             <h3 class="form-heading">Therapy Duration(min)</h3>
-            ${editableFields
+            ${nonEditableFields
                 .map((header, index) => {
                     const value = rowData[headers.indexOf(header)] || ""; // Get value based on original index
                     return `
@@ -648,115 +656,7 @@ $(document).ready(function () {
         });
     }
     
-    function fetchSessionData(hospitalID, selectedDate) {
-        fetch(`/fetch-session-data/${hospitalID}/${selectedDate}`)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    console.error('Error:', data.error);
-                    return;
-                }
-    
-                console.log("Fetched Session Data:", data);
-    
-                // Ensure we have sessions data
-                if (!data.sessions || data.sessions.length === 0) {
-                    console.error("No sessions found for the selected date.");
-                    return;
-                }
-    
-                // Clear previous charts
-                const sessionChartsContainer = document.getElementById("session-charts-container");
-                sessionChartsContainer.innerHTML = "";
-    
-                // Iterate through sessions and generate charts
-                data.sessions.forEach((session) => {
-                    if (!session.Mechanisms || !session.GameDurations) {
-                        console.error("Invalid session data:", session);
-                        return;
-                    }
-    
-                    createPieChart(session.SessionNumber, session.Mechanisms, session.GameDurations);
-                });
-            })
-            .catch((error) => {
-                console.error('Error fetching session data:', error);
-            });
-    }
-    
-    function createPieChart(sessionNumber, mechanisms, durations) {
-        const sessionChartsContainer = document.getElementById("session-charts-container");
-    
-        // Create a wrapper for each chart
-        const chartWrapper = document.createElement('div');
-        chartWrapper.classList.add('chart-wrapper'); // Optional: Add CSS for layout
-        chartWrapper.style.margin = "20px"; // Adjusted spacing between charts
-    
-        // Add a title for the session chart
-        const chartTitle = document.createElement('h3');
-        chartTitle.textContent = `Session ${sessionNumber} - Mechanism Durations`;
-        chartWrapper.appendChild(chartTitle);
-    
-        // Create canvas for the chart
-        const canvas = document.createElement('canvas');
-        chartWrapper.appendChild(canvas);
-    
-        // Append wrapper to the main container
-        sessionChartsContainer.appendChild(chartWrapper);
-    
-        // Generate the chart
-        new Chart(canvas, {
-            type: 'pie',
-            data: {
-                labels: mechanisms,
-                datasets: [{
-                    data: durations,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(255, 159, 64, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(153, 102, 255, 0.7)',
-                        'rgba(255, 205, 86, 0.7)'
-                    ],
-                    borderWidth: 1,
-                }],
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels:{
-                            color:"White"
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (tooltipItem) {
-                                return `${tooltipItem.label}: ${tooltipItem.raw} mins`;
-                            },
-                        },
-                    },
-                    title: {
-                        display: true,
-                        text: `Mechanisms for Session ${sessionNumber}`,
-                        color:"white"
-                    },
-                },
-                responsive: true,
-                maintainAspectRatio: true,
-            },
-        });
-    }
-    
-    
-    
-
    
-    
-
-   
-
     // Call the function to fetch hospital suggestions when the page loads
     window.onload = getUserID(DEVICE_NAME);
 });

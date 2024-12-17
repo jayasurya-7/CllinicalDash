@@ -46,54 +46,55 @@
         <div id='loadingMessage'></div>
        
         <div class="container">
-          <div id="detailsForm" style="display: none;" class="card">
-            <h3 class="card-title">Hospital Details</h3>
-            <form class="card-form">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="hospitalID">Hospital ID:</label>
-                  <input type="text" id="hospitalID" readonly>
-                </div>
-
-                <div class="form-group">
-                  <label for="startDate">Start Date:</label>
-                  <input type="text" id="startDate" readonly>
-                </div>
-
-                <div class="form-group">
-                  <label for="endDate">End Date:</label>
-                  <input type="text" id="endDate" readonly>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="totalDays">Total Days:</label>
-                  <input type="text" id="totalDays" readonly>
-                </div>
-
-                <div class="form-group">
-                  <label for="usageDays">Usage Days:</label>
-                  <input type="text" id="usageDays" readonly>
-                </div>
-
-                <div class="form-group">
-                  <label for="totalusageDays">Total Usage Days:</label>
-                  <input type="text" id="totalusageDays" readonly>
-                </div>
-                <!-- Pie Chart container -->
-
-
-              </div>
-              <div class="form-row">
-                <label for="PLUTO" id = "device">PLUTO</label>
-                <canvas id="usageChart"></canvas>
-              </div>
-            </form>
-          </div>
+         
           <div class="config-container">
             <div id="homerUserDetails" style="display: none;"></div>
             <div id="editableFieldsContainer" style="display: none;"></div>
+        </div>
+        <div id="detailsForm" style="display: none;" class="card">
+          <h3 class="card-title">Hospital Details</h3>
+          <form class="card-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="hospitalID">Hospital ID:</label>
+                <input type="text" id="hospitalID" readonly>
+              </div>
+
+              <div class="form-group">
+                <label for="startDate">Start Date:</label>
+                <input type="text" id="startDate" readonly>
+              </div>
+
+              <div class="form-group">
+                <label for="endDate">End Date:</label>
+                <input type="text" id="endDate" readonly>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="totalDays">Total Days:</label>
+                <input type="text" id="totalDays" readonly>
+              </div>
+
+              <div class="form-group">
+                <label for="usageDays">Usage Days:</label>
+                <input type="text" id="usageDays" readonly>
+              </div>
+
+              <div class="form-group">
+                <label for="totalusageDays">Total Usage Days:</label>
+                <input type="text" id="totalusageDays" readonly>
+              </div>
+              <!-- Pie Chart container -->
+
+
+            </div>
+            <div class="form-row">
+              <label for="PLUTO" id = "device">PLUTO</label>
+              <canvas id="usageChart"></canvas>
+            </div>
+          </form>
         </div>
         </div>
         <div class="chartContainer" >
