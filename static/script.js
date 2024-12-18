@@ -123,15 +123,14 @@ $(document).ready(function () {
                     ]
                     const headerHTML = header.map((value, index) => {
                         let displayValue = lastRow[index];
+                        const prescribedKeys = ["sabdu", "sfe", "elfe", "wfe", "wurd", "fps", "fme1", "fme2", "hoc"];
                         if (value.toLowerCase() === "usehand") {
                             const numericValue = Number(lastRow[index]);
                             displayValue = numericValue === 1 ? "Right Hand" : numericValue === 2 ? "Left Hand" : displayValue;
                         }
-                        const prescribedKeys = ["sabdu", "sfe", "elfe", "wfe", "wurd", "fps", "fme1", "fme2","hoc"];
                         if (prescribedKeys.includes(value.toLowerCase())) {
-                            displayValue += `  [Prescribed(min)]`;
+                            return ''; // Return an empty string for prescribed keys so they won't be included
                         }
-                        console.log(displayValue)
                         return `
                             <div class="form-row-detials">
                                 <label class="form-label">${value.toUpperCase()}</label>
@@ -140,16 +139,32 @@ $(document).ready(function () {
                         `;
                     }).join("");
                     
-                    PatientDetailscontainer.innerHTML = `
-                            <div class="form-layout">
-                                <h2 class="form-heading">Patient Details</h2>
-                                ${headerHTML}
-                                <div class="form-actions">
-                                     <button id="editconfig" class="btn btn-success">CHANGE DURATION</button>
+                    // Create a separate section for prescribed keys at the end with a label
+                    const prescribedKeysHTML = header
+                        .filter(value => ["sabdu", "sfe", "elfe", "wfe", "wurd", "fps", "fme1", "fme2", "hoc"].includes(value.toLowerCase()))
+                        .map((value, index) => {
+                            let displayValue = lastRow[header.indexOf(value)];
+                            return `
+                                <div class="form-row-detials">
+                                    <label class="form-label">${value.toUpperCase()}</label>
+                                    <label class="form-input">${displayValue}</label>
                                 </div>
-                            </div>
-                        `;
+                            `;
+                        })
+                        .join("");
                     
+                    // Combine both the general header HTML and the prescribed keys section
+                    PatientDetailscontainer.innerHTML = `
+                        <div class="form-layout">
+                            <h2 class="form-heading">Patient Details</h2>
+                            ${headerHTML}
+                            <div class="form-heading">Prescribed Time for Movements(min)</div>
+                            ${prescribedKeysHTML}
+                            <div class="form-actions">
+                                <button id="editconfig" class="btn btn-success">CHANGE DURATION</button>
+                            </div>
+                        </div>
+                    `;
                         function parseCustomDate(dateString) {
                             const [day, month, year] = dateString.split('-').map(Number); 
                             return new Date(year, month - 1, day); 
@@ -299,6 +314,7 @@ $(document).ready(function () {
               <button id="saveChangesButton" class="btn btn-success">Save Changes</button>
               <button id="cancelButton" class="btn btn-danger">Cancel</button>
             </div>
+            <div id='statusmessage'></div>
           </div>
         `;
         document.getElementById("cancelButton").addEventListener("click", () => {
@@ -339,8 +355,8 @@ $(document).ready(function () {
             if (isValid) {
                 console.log("Updated Data:", updatedData); // Updated data including non-editable fields
                 updateDataInAWS(updatedData); // Pass updated data to AWS function
-                containereditable.style.display = "none";
-                PatientDetailscontainer.style.display = "block";
+                // containereditable.style.display = "none";
+                // PatientDetailscontainer.style.display = "block";
             } else {
                 alert("Please fill in all required fields.");
             }
@@ -360,7 +376,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.status === "success") {
                     showUploadStatus("Changes saved successfully!", "success");
-
+                    containereditable.style.display = "none";
                     fetchUserData(UserName, DeviceName);
                 } else {
 
@@ -376,7 +392,7 @@ $(document).ready(function () {
     }
 
     function showUploadStatus(message, type) {
-        loadingMessage.innerHTML = "<div id='statusmessage'></div>";
+       
         const statusContainer = document.getElementById("statusmessage");
 
         if (statusContainer) {
