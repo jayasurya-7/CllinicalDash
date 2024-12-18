@@ -213,11 +213,11 @@ def get_chart_data(hospital_id):
 
         # Debugging: Print parsed dates
         print(f"Start Date: {start_date}, End Date: {end_date}")
+        current_date = datetime.now().date()
 
-        # Create a list of dates spanning the range specified in configdata.csv
         date_range = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
+        current_date_range = [date for date in date_range if date.date() <= current_date]
 
-        # Convert the DateTime column to datetime in extdata.csv with the correct format
         ext_data['DateTime'] = pd.to_datetime(ext_data['DateTime'], format='%d-%m-%Y %H:%M:%S')
         ext_data['Date'] = ext_data['DateTime'].dt.date
 
@@ -229,7 +229,7 @@ def get_chart_data(hospital_id):
         labels = [date.strftime('%Y-%m-%d') for date in date_range]
         line_data = [
             session_duration_by_date.get(date.date(), 0)  # Fill with 0 if date is missing
-            for date in date_range
+            for date in current_date_range
         ]
         print("lD :", line_data)
 

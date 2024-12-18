@@ -547,11 +547,6 @@ $(document).ready(function () {
             })
             .catch(error => console.error('Error fetching chart data:', error));
     }
-    
-  
-  
-  
-    
   
     function scrollToDetails() {
         const target = document.getElementById('detailsSection');
